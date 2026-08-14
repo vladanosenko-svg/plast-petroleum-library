@@ -1,4 +1,21 @@
-export type Book = { slug: string; title: string; author: string; year: string; type: string; language: string; description: string; tone: string; topics: string[] };
+export type Material = {
+  slug: string;
+  title: string;
+  author: string;
+  year: string;
+  type: string;
+  language: string;
+  description?: string;
+  tone?: string;
+  topics?: string[];
+  aliases?: string[];
+};
+
+export type Book = Material & {
+  description: string;
+  tone: string;
+  topics: string[];
+};
 
 export type KnowledgeTopic = {
   title: string;
@@ -156,7 +173,7 @@ export const books: Book[] = [
   { slug: "geological-modeling", title: "Основы геологического моделирования", author: "Е. А. Соколова", year: "2024", type: "Учебное пособие", language: "Русский", description: "Структурный каркас, фациальное моделирование и оценка неопределённостей геологической модели.", tone: "violet", topics: ["Геология", "Геомоделирование", "Неопределённость"] },
 ];
 
-export const materials = [
+export const materials: Material[] = [
   ...books,
   { slug: "eor-review", title: "Методы увеличения нефтеотдачи: обзор", author: "Редакция", year: "2025", type: "Статья", language: "Русский" },
   { slug: "eclipse-manual", title: "Руководство по подготовке модели ECLIPSE", author: "Учебный центр", year: "2024", type: "Manual", language: "Русский" },

@@ -27,10 +27,11 @@ export default function Home() {
 
       <section className="shell section" id="topics">
         <SectionHeader index="01" title="Основные направления" href="/topics" linkText="Все направления" />
+        <p className="section-note">Ключевые разделы библиотеки</p>
         <div className="topic-grid">
           {topics.map((topic, index) => (
             <Link className="topic-row" href={`/topics#${topic.slug}`} key={topic.slug}>
-              <span>{String(index + 1).padStart(2, "0")}</span><strong>{topic.title}</strong><i>↗</i>
+              <span>{String(index + 1).padStart(2, "0")}</span><strong>{topic.title}</strong><i aria-hidden="true">→</i>
             </Link>
           ))}
         </div>

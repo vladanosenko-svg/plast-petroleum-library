@@ -1,19 +1,13 @@
 import assert from "node:assert/strict";
-import { access, readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
-const developmentPreviewMeta =
-  /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
-const templateRoot = new URL("../", import.meta.url);
-const previewRoot = new URL("../app/_sites-preview/", import.meta.url);
-
-async function render() {
+async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
+  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${pathname}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("http://localhost/", {
+    new Request(`http://localhost${pathname}`, {
       headers: { accept: "text/html" },
     }),
     {
@@ -28,64 +22,52 @@ async function render() {
   );
 }
 
-test("server-renders the starter loading skeleton", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+const routes = [
+  { pathname: "/", heading: "Библиотека" },
+  { pathname: "/library", heading: "Библиотека" },
+  { pathname: "/topics", heading: "Все направления" },
+  { pathname: "/courses", heading: "Курсы" },
+  { pathname: "/about", heading: "ПЛАСТ" },
+];
 
-  const html = await response.text();
-  assert.match(html, developmentPreviewMeta);
-  assert.match(html, /<title>Your site is taking shape<\/title>/i);
-  assert.match(html, /Building your site/);
-  assert.match(html, /Your site is taking shape/);
-  assert.match(
-    html,
-    /Your first version will appear here automatically when it’s ready\./,
-  );
-  assert.doesNotMatch(html, /Codex/);
-  assert.match(html, /react-loading-skeleton/);
-  assert.match(html, /role="status"/);
+test("server-renders every primary route", async () => {
+  for (const route of routes) {
+    const response = await render(route.pathname);
+
+    assert.equal(response.status, 200, route.pathname);
+    assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+    const html = await response.text();
+    assert.match(html, new RegExp(route.heading, "i"), route.pathname);
+    assert.doesNotMatch(html, /href=["']#["']/i, route.pathname);
+  }
 });
 
-test("keeps the loading skeleton scoped and disposable", async () => {
-  const [preview, css, page, layout, packageJson, files] = await Promise.all([
-    readFile(new URL("SkeletonPreview.tsx", previewRoot), "utf8"),
-    readFile(new URL("preview.css", previewRoot), "utf8"),
-    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../package.json", import.meta.url), "utf8"),
-    readdir(previewRoot),
-  ]);
+test("renders complete Next.js navigation on every route", async () => {
+  for (const route of routes) {
+    const html = await (await render(route.pathname)).text();
 
-  assert.deepEqual(files.sort(), ["SkeletonPreview.tsx", "preview.css"]);
-  assert.match(preview, /from "react-loading-skeleton"/);
-  assert.match(preview, /baseColor="#eceae7"/);
-  assert.match(preview, /highlightColor="#f9f8f6"/);
-  assert.match(preview, /duration=\{2\.8\}/);
-  assert.match(preview, /sites-skeleton-search-placeholder/);
-  assert.match(packageJson, /"react-loading-skeleton": "3\.5\.0"/);
+    assert.match(html, /href=["']\/["']/i);
+    assert.match(html, /href=["']\/library["']/i);
+    assert.match(html, /href=["']\/topics["']/i);
+    assert.match(html, /href=["']\/courses["']/i);
+    assert.match(html, /href=["']\/about["']/i);
+    assert.doesNotMatch(html, /href=["']\/topics#modeling["'][^>]*>Курсы/i);
+    assert.doesNotMatch(html, /href=["']\/#about["'][^>]*>О проекте/i);
+  }
+});
 
-  const shellIndex = preview.indexOf('className="sites-skeleton-shell"');
-  const statusIndex = preview.indexOf('className="sites-skeleton-status"');
-  assert.ok(shellIndex >= 0 && statusIndex > shellIndex);
-  assert.match(css, /position:\s*fixed/);
-  assert.match(css, /inset:\s*0/);
-  assert.match(css, /opacity:\s*0\.52/);
-  assert.match(css, /prefers-reduced-motion:\s*reduce/);
-  assert.doesNotMatch(css, /#020617|canvas|pets|progress/i);
-  assert.doesNotMatch(
-    preview,
-    /loading-spinner|status-mark|status-progress|canvas|cookie|random/i,
-  );
+test("marks current sections and describes future functionality truthfully", async () => {
+  for (const pathname of ["/library", "/topics", "/courses", "/about"]) {
+    const html = await (await render(pathname)).text();
+    assert.match(html, /class=["']active["'][^>]*aria-current=["']page["']/i, pathname);
+  }
 
-  assert.match(page, /export const metadata:\s*Metadata/);
-  assert.match(page, /"codex-preview": "development"/);
-  assert.match(page, /<SkeletonPreview \/>/);
-  assert.match(layout, /title:\s*"Starter Project"/);
-  assert.doesNotMatch(layout, /codex-preview|_sites-preview|themeColor|\bViewport\b/);
-  assert.doesNotMatch(css, /(^|\s)(html|body)\s*\{/m);
+  const coursesHtml = await (await render("/courses")).text();
+  assert.match(coursesHtml, /Раздел в разработке/i);
+  assert.match(coursesHtml, /Будущее направление/i);
 
-  await assert.rejects(
-    access(new URL("public/_sites-preview", templateRoot)),
-  );
+  const aboutHtml = await (await render("/about")).text();
+  assert.match(aboutHtml, /В дальнейшем/i);
+  assert.match(aboutHtml, /планируются/i);
 });

@@ -1,15 +1,47 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { Material } from "./data";
+
+const navigation = [
+  { href: "/library", label: "Библиотека" },
+  { href: "/topics", label: "Темы" },
+  { href: "/courses", label: "Курсы" },
+  { href: "/about", label: "О проекте" },
+] as const;
+
+function NavigationLinks({ onNavigate }: { onNavigate?: () => void }) {
+  const pathname = usePathname();
+
+  return navigation.map((item) => {
+    const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+    return (
+      <Link
+        className={isActive ? "active" : undefined}
+        href={item.href}
+        aria-current={isActive ? "page" : undefined}
+        onClick={onNavigate}
+        key={item.href}
+      >
+        {item.label}
+      </Link>
+    );
+  });
+}
 
 export function Header() {
   const toggle = () => { const current = document.documentElement.dataset.theme || "light"; const next = current === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = next; localStorage.setItem("theme", next); };
+  const closeMobileMenu = () => {
+    document.querySelector<HTMLDetailsElement>(".mobile-menu")?.removeAttribute("open");
+  };
+
   return <header className="site-header"><div className="shell header-inner">
     <Link className="wordmark" href="/" aria-label="Пласт — на главную"><span aria-hidden="true" />ПЛАСТ<small>библиотека знаний</small></Link>
-    <nav className="desktop-nav" aria-label="Основная навигация"><Link href="/library">Библиотека</Link><Link href="/topics">Темы</Link><Link href="/topics#modeling">Курсы</Link><Link href="/#about">О проекте</Link></nav>
+    <nav className="desktop-nav" aria-label="Основная навигация"><NavigationLinks /></nav>
     <button className="theme-toggle" onClick={toggle} aria-label="Переключить цветовую тему"><span>Тема</span><i /></button>
-    <details className="mobile-menu"><summary>Меню</summary><nav><Link href="/library">Библиотека</Link><Link href="/topics">Темы</Link><Link href="/topics#modeling">Курсы</Link><Link href="/#about">О проекте</Link></nav></details>
+    <details className="mobile-menu"><summary>Меню</summary><nav aria-label="Мобильная навигация"><NavigationLinks onNavigate={closeMobileMenu} /></nav></details>
   </div></header>;
 }
 

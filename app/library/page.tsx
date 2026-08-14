@@ -29,11 +29,6 @@ export default async function LibraryPage({ searchParams }: { searchParams: Libr
         </section>
       )}
 
-      <div className="catalog-toolbar">
-        <div><button className="filter-active">Все материалы</button><button>Книги</button><button>Статьи</button><button>Пособия</button></div>
-        <div><label>Язык <select defaultValue="all"><option value="all">Все</option><option>Русский</option><option>Английский</option></select></label><label>Год <select defaultValue="new"><option value="new">Сначала новые</option><option>2025</option><option>2024</option></select></label></div>
-      </div>
-
       {filteredMaterials.length > 0 ? (
         <div className="catalog-grid">
           {filteredMaterials.map((material, index) => (

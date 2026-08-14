@@ -16,7 +16,7 @@ export function Header() {
 export function Footer() { return <footer id="about"><div className="shell footer-grid"><div><strong>ПЛАСТ</strong><p>Интеллектуальная библиотека нефтегазовых знаний.</p></div><div><p>Проект развивается как открытый цифровой архив для студентов, инженеров и исследователей.</p></div><div><span>© 2026</span><Link href="/library">В библиотеку →</Link></div></div></footer>; }
 
 export function SearchField({ compact = false, defaultQuery = "" }: { compact?: boolean; defaultQuery?: string }) {
-  return <form className={`search-field ${compact ? "compact" : ""}`} role="search" action="/library" method="get"><label className="sr-only" htmlFor={compact ? "catalog-search" : "main-search"}>Поиск по библиотеке</label><input id={compact ? "catalog-search" : "main-search"} name="q" defaultValue={defaultQuery} placeholder="Найти книгу, статью или тему…" /><button type="submit" aria-label="Найти">Найти <span>↗</span></button></form>;
+  return <form className={`search-field ${compact ? "compact" : ""}`} role="search" action="/library" method="get"><label className="sr-only" htmlFor={compact ? "catalog-search" : "main-search"}>Поиск по библиотеке</label><input id={compact ? "catalog-search" : "main-search"} name="q" defaultValue={defaultQuery} placeholder="Найти книгу, статью или тему…" /><button type="submit" aria-label="Найти">Найти <span>→</span></button></form>;
 }
 
 export function SectionHeader({ index, title, href, linkText }: { index: string; title: string; href: string; linkText: string }) { return <div className="section-header"><span>{index}</span><h2>{title}</h2><Link href={href}>{linkText} →</Link></div>; }

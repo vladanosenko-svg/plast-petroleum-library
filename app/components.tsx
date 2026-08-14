@@ -7,7 +7,7 @@ import type { Book } from "./data";
 export function Header() {
   const toggle = () => { const current = document.documentElement.dataset.theme || "light"; const next = current === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = next; localStorage.setItem("theme", next); };
   return <header className="site-header"><div className="shell header-inner">
-    <Link className="wordmark" href="/" aria-label="Пласт — на главную"><span>П</span>ПЛАСТ<small>библиотека знаний</small></Link>
+    <Link className="wordmark" href="/" aria-label="Пласт — на главную"><span aria-hidden="true" />ПЛАСТ<small>библиотека знаний</small></Link>
     <nav className="desktop-nav" aria-label="Основная навигация"><Link href="/library">Библиотека</Link><Link href="/topics">Темы</Link><Link href="/topics#modeling">Курсы</Link><Link href="/#about">О проекте</Link></nav>
     <button className="theme-toggle" onClick={toggle} aria-label="Переключить цветовую тему"><span>Тема</span><i /></button>
     <details className="mobile-menu"><summary>Меню</summary><nav><Link href="/library">Библиотека</Link><Link href="/topics">Темы</Link><Link href="/topics#modeling">Курсы</Link><Link href="/#about">О проекте</Link></nav></details>

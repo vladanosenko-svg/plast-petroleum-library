@@ -71,3 +71,28 @@ test("marks current sections and describes future functionality truthfully", asy
   assert.match(aboutHtml, /В дальнейшем/i);
   assert.match(aboutHtml, /планируются/i);
 });
+
+test("server-renders search, topic empty state, materials and custom 404", async () => {
+  const pvtHtml = await (await render("/library?q=PVT")).text();
+  assert.match(pvtHtml, /2 материала/i);
+  assert.match(pvtHtml, /PVT-свойства пластовых флюидов/i);
+
+  const unknownHtml = await (await render("/library?q=asdfgh123")).text();
+  assert.match(unknownHtml, /По вашему запросу ничего не найдено/i);
+  assert.match(unknownHtml, /Сбросить поиск/i);
+
+  const topicHtml = await (await render("/library?topic=geophysics")).text();
+  assert.match(topicHtml, /Материалы по направлению «[\s\S]*?Геофизика[\s\S]*?» пока не добавлены/i);
+
+  const materialResponse = await render("/library/reservoir-engineering");
+  assert.equal(materialResponse.status, 200);
+  const materialHtml = await materialResponse.text();
+  assert.match(materialHtml, /Физика нефтяного и газового пласта — ПЛАСТ/i);
+  assert.match(materialHtml, /Демонстрационный материал/i);
+  assert.match(materialHtml, /Источник пока не добавлен/i);
+  assert.doesNotMatch(materialHtml, /Первое|Отраслевая коллекция|Читать материал/i);
+
+  const notFoundResponse = await render("/random-page-404");
+  assert.equal(notFoundResponse.status, 404);
+  assert.match(await notFoundResponse.text(), /Страница не найдена/i);
+});

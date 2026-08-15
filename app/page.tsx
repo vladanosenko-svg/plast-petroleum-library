@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BookCover, SearchField, SectionHeader } from "./components";
-import { books, materials, topics } from "./data";
+import { books, materialLanguageLabels, materialTypeLabels, materials, topics } from "./data";
 
 export default function Home() {
   return (
@@ -13,9 +13,9 @@ export default function Home() {
           <SearchField />
           <div className="search-examples" aria-label="Примеры поиска">
             <span>Например:</span>
-            <Link href="/library?q=Гидродинамическое моделирование">Гидродинамическое моделирование</Link>
-            <Link href="/library?q=PVT">PVT</Link>
-            <Link href="/library?q=ГДИС">ГДИС</Link>
+            <Link href="/library?q=Гидродинамическое моделирование" prefetch={false}>Гидродинамическое моделирование</Link>
+            <Link href="/library?q=PVT" prefetch={false}>PVT</Link>
+            <Link href="/library?q=ГДИС" prefetch={false}>ГДИС</Link>
           </div>
         </div>
         <div className="strata" aria-hidden="true">
@@ -30,7 +30,7 @@ export default function Home() {
         <p className="section-note">Ключевые разделы библиотеки</p>
         <div className="topic-grid">
           {topics.map((topic, index) => (
-            <Link className="topic-row" href={`/topics#${topic.slug}`} key={topic.slug}>
+            <Link className="topic-row" href={`/library?topic=${topic.id}`} prefetch={false} key={topic.id}>
               <span>{String(index + 1).padStart(2, "0")}</span><strong>{topic.title}</strong><i aria-hidden="true">→</i>
             </Link>
           ))}
@@ -41,9 +41,9 @@ export default function Home() {
         <SectionHeader index="02" title="Рекомендуем" href="/library" linkText="Вся коллекция" />
         <div className="book-grid">
           {books.slice(0, 5).map((book, index) => (
-            <Link className="book-card" href={`/library/${book.slug}`} key={book.slug}>
+            <Link className="book-card" href={`/library/${book.slug}`} prefetch={false} key={book.slug}>
               <BookCover book={book} index={index} />
-              <h3>{book.title}</h3><p>{book.author}</p><span>{book.year}</span>
+              <h3>{book.title}</h3><p>{book.authors.join(", ")}</p><span>{book.year}</span>
             </Link>
           ))}
         </div>
@@ -51,7 +51,7 @@ export default function Home() {
 
       <section className="study-section section">
         <div className="shell study-grid">
-          <div><p className="eyebrow">03 / Изучать по темам</p><h2>Гидродинамическое моделирование</h2><p>От основ фильтрации до адаптации модели и прогнозирования.</p><Link className="text-link" href="/topics#modeling">Открыть направление →</Link></div>
+          <div><p className="eyebrow">03 / Изучать по темам</p><h2>Гидродинамическое моделирование</h2><p>От основ фильтрации до адаптации модели и прогнозирования.</p><Link className="text-link" href="/library?topic=modeling" prefetch={false}>Открыть направление →</Link></div>
           <ol className="study-path">
             {['Основы','Исходные данные','Инициализация','Адаптация','Прогноз'].map((step, i) => <li key={step}><span>{String(i + 1).padStart(2, '0')}</span>{step}</li>)}
           </ol>
@@ -62,7 +62,7 @@ export default function Home() {
         <SectionHeader index="04" title="Новые материалы" href="/library" linkText="Смотреть библиотеку" />
         <div className="material-table" role="table" aria-label="Новые материалы">
           <div className="material-head" role="row"><span>Название</span><span>Тип</span><span>Год</span><span>Язык</span></div>
-          {materials.slice(0, 5).map((item) => <Link href={`/library/${item.slug}`} className="material-row" role="row" key={item.slug}><strong>{item.title}</strong><span>{item.type}</span><span>{item.year}</span><span>{item.language}</span></Link>)}
+          {materials.slice(0, 5).map((item) => <Link href={`/library/${item.slug}`} prefetch={false} className="material-row" role="row" key={item.id}><strong>{item.title}</strong><span>{materialTypeLabels[item.type]}</span><span>{item.year}</span><span>{materialLanguageLabels[item.language]}</span></Link>)}
         </div>
       </section>
     </main>

@@ -29,7 +29,7 @@ export default function TopicsPage() {
             <ul className="knowledge-topic-list">
               {area.topics.map((topic) => (
                 <li id={topic.slug} key={topic.slug}>
-                  <Link href={`/library?q=${encodeURIComponent(topic.title)}`}>
+                  <Link href={`/library?topic=${topic.id}`} prefetch={false}>
                     <span>{topic.title}</span>
                     <i aria-hidden="true">→</i>
                   </Link>

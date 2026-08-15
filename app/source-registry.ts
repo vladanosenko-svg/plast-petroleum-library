@@ -347,6 +347,15 @@ export interface SourceValidationIssue {
   message: string;
 }
 
+// Cloudflare Workers expose epoch time during module initialization, before a
+// request provides a real clock. Keep the registry check deterministic there
+// while allowing the limit to advance normally in environments with real time.
+export const sourceRegistryReleaseYear = 2026;
+
+export function getMaximumSourceYear(date = new Date()) {
+  return Math.max(date.getUTCFullYear(), sourceRegistryReleaseYear) + 1;
+}
+
 function isHttpUrl(value: string | undefined) {
   return Boolean(normalizeUrl(value));
 }
@@ -358,7 +367,7 @@ function isPlaceholderStorageKey(value: string) {
 export function validateSourceRegistry(
   sources: readonly Source[],
   validTopicIds: readonly string[],
-  maximumYear = new Date().getFullYear() + 1,
+  maximumYear = getMaximumSourceYear(),
 ) {
   const issues: SourceValidationIssue[] = [];
   const topicIds = new Set(validTopicIds);

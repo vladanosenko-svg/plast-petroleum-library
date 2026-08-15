@@ -3,6 +3,7 @@ import test from "node:test";
 import { allTopics, sources } from "../app/data.ts";
 import {
   getSourceIdentityKeys,
+  getMaximumSourceYear,
   getTopicSourceCounts,
   isValidDoi,
   isValidIsbn,
@@ -13,6 +14,11 @@ import {
   normalizeUrl,
   validateSourceRegistry,
 } from "../app/source-registry.ts";
+
+test("keeps the publication-year limit valid during Worker startup", () => {
+  assert.equal(getMaximumSourceYear(new Date(0)), 2027);
+  assert.equal(getMaximumSourceYear(new Date("2030-01-01T00:00:00Z")), 2031);
+});
 
 test("normalizes and validates source identifiers", () => {
   assert.equal(normalizeDoi(" DOI: https://doi.org/10.2118/12345-MS "), "10.2118/12345-ms");

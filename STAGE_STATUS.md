@@ -1,5 +1,21 @@
 # Статус этапов
 
+## 3B — Corpus Planning
+
+Статус: завершён 2026-08-16.
+
+Выполнено:
+
+- зафиксирована глобальная цель 1 000–1 500 уникальных источников с ориентиром 1 200;
+- созданы и валидируются 65/65 `TopicCorpusProfile` с RU/EN discovery vocabulary, aliases, связями, SourceType, приоритетами и неодинаковыми coverage targets;
+- добавлен детерминированный coverage engine со score 0–100, composition-aware status и gaps;
+- demo-записи исключены из production coverage по умолчанию, предусмотрены verified/candidate режимы;
+- добавлены discovery priority и стабильная очередь следующего поиска;
+- добавлены CLI-отчёт, документация и unit tests;
+- внешние каталоги, API, файлы, storage, OCR и ingestion не подключались.
+
+Следующий этап: **3C — Document Storage**, только отдельной задачей.
+
 ## 3A — Source Registry
 
 Статус: завершён 2026-08-16.
@@ -28,4 +44,4 @@
 - ingestion, object storage, reader, OCR, chunks, embeddings, vector search и AI/RAG не реализовывались;
 - deployment в этот этап не входит.
 
-Следующий этап: наполнение registry проверенными `candidate`/`verified` записями или подключение document storage — только отдельной задачей.
+Этап 3A остаётся завершённым; его Source Registry используется Corpus Planning.

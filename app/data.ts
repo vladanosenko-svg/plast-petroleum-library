@@ -1,26 +1,17 @@
-export const materialTypes = ["book", "article", "guide", "manual", "standard"] as const;
-export type MaterialType = (typeof materialTypes)[number];
+import { assertSourceRegistry, type Source } from "./source-registry.ts";
 
-export const materialLanguages = ["ru", "en"] as const;
-export type MaterialLanguage = (typeof materialLanguages)[number];
-
-export interface Material {
-  id: string;
-  slug: string;
-  title: string;
-  authors: string[];
-  year?: number;
-  type: MaterialType;
-  language: MaterialLanguage;
-  topics: string[];
-  aliases: string[];
-  description: string;
-  coverColor?: string;
-  coverImage?: string;
-  externalUrl?: string;
-  source?: { name: string; url?: string };
-  verified: boolean;
-}
+export {
+  materialLanguages,
+  materialLanguageLabels,
+  materialTypes,
+  materialTypeLabels,
+  sourceAccessStatusLabels,
+  sourceLanguageLabels,
+  sourceProviderLabels,
+  sourceRecordStatusLabels,
+  sourceTypeLabels,
+} from "./source-registry.ts";
+export type { Material, MaterialLanguage, MaterialType, Source } from "./source-registry.ts";
 
 export interface KnowledgeTopic {
   id: string;
@@ -167,62 +158,76 @@ export function getTopicById(id: string | undefined) {
 const featuredTopicIds = ["geology", "petrophysics", "pvt", "geomodeling", "development", "modeling", "well-testing", "production"];
 export const topics = featuredTopicIds.map(getTopicById).filter((topic): topic is KnowledgeTopic => Boolean(topic));
 
-export const materialTypeLabels: Record<MaterialType, string> = {
-  book: "Книга", article: "Статья", guide: "Руководство", manual: "Техническая документация", standard: "Стандарт",
-};
-
-export const materialLanguageLabels: Record<MaterialLanguage, string> = { ru: "Русский", en: "English" };
-
-export const materials: Material[] = [
+export const sources: Source[] = [
   {
     id: "mat-reservoir-engineering", slug: "reservoir-engineering", title: "Физика нефтяного и газового пласта",
-    authors: ["А. М. Коновалов"], year: 2024, type: "guide", language: "ru",
-    topics: ["petrophysics", "pvt", "reservoir-physics"], aliases: ["пластовые флюиды"],
+    authors: [{ fullName: "А. М. Коновалов" }], year: 2024, type: "practical-guide", language: "ru",
+    topics: ["petrophysics", "pvt", "reservoir-physics"], keywords: ["пластовые флюиды"],
     description: "Системное введение в свойства коллекторов, пластовых флюидов и процессы фильтрации. Материал связывает фундаментальные зависимости с инженерными расчётами.",
-    coverColor: "#9c6538", verified: false,
+    provenance: [], access: { status: "metadata-only", ragPermission: "metadata-only" },
+    quality: { authorityTier: "practical" }, recordStatus: "demo",
   },
   {
     id: "mat-well-test-analysis", slug: "well-test-analysis", title: "Гидродинамические исследования скважин",
-    authors: ["И. Н. Миронов"], year: 2023, type: "book", language: "ru",
-    topics: ["well-testing", "development-analysis"], aliases: ["ГДИС", "давление"],
+    authors: [{ fullName: "И. Н. Миронов" }], year: 2023, type: "book", language: "ru",
+    topics: ["well-testing", "development-analysis"], keywords: ["ГДИС", "давление"],
     description: "Практическое руководство по планированию, проведению и интерпретации ГДИС для различных режимов работы скважины.",
-    coverColor: "#3b586b", verified: false,
+    provenance: [], access: { status: "metadata-only", ragPermission: "metadata-only" },
+    quality: { authorityTier: "practical" }, recordStatus: "demo",
   },
   {
     id: "mat-reservoir-simulation", slug: "reservoir-simulation", title: "Гидродинамическое моделирование",
-    authors: ["К. С. Беляева"], year: 2025, type: "book", language: "ru",
-    topics: ["modeling", "development-forecasting", "uncertainty-and-risk"], aliases: ["ГДМ", "адаптация модели"],
+    authors: [{ fullName: "К. С. Беляева" }], year: 2025, type: "textbook", language: "ru",
+    topics: ["modeling", "development-forecasting", "uncertainty-and-risk"], keywords: ["ГДМ", "адаптация модели"],
     description: "От построения сетки и инициализации до адаптации исторических данных и оценки сценариев разработки.",
-    coverColor: "#8c4734", verified: false,
+    provenance: [], access: { status: "metadata-only", ragPermission: "metadata-only" },
+    quality: { authorityTier: "core" }, recordStatus: "demo",
   },
   {
     id: "mat-pvt-properties", slug: "pvt-properties", title: "PVT-свойства пластовых флюидов",
-    authors: ["М. В. Каримов"], year: 2022, type: "guide", language: "ru",
-    topics: ["pvt", "phase-equilibria", "gas-condensate-systems"], aliases: ["PVT-анализ", "флюиды"],
+    authors: [{ fullName: "М. В. Каримов" }], year: 2022, type: "practical-guide", language: "ru",
+    topics: ["pvt", "phase-equilibria", "gas-condensate-systems"], keywords: ["PVT-анализ", "флюиды"],
     description: "Методы лабораторных исследований, контроль качества данных и подготовка флюидальной модели.",
-    coverColor: "#3f5c50", verified: false,
+    provenance: [], access: { status: "metadata-only", ragPermission: "metadata-only" },
+    quality: { authorityTier: "practical" }, recordStatus: "demo",
   },
   {
     id: "mat-geological-modeling", slug: "geological-modeling", title: "Основы геологического моделирования",
-    authors: ["Е. А. Соколова"], year: 2024, type: "guide", language: "ru",
-    topics: ["geology", "geomodeling", "uncertainty-and-risk"], aliases: ["геомоделирование"],
+    authors: [{ fullName: "Е. А. Соколова" }], year: 2024, type: "study-guide", language: "ru",
+    topics: ["geology", "geomodeling", "uncertainty-and-risk"], keywords: ["геомоделирование"],
     description: "Структурный каркас, фациальное моделирование и оценка неопределённостей геологической модели.",
-    coverColor: "#5e536a", verified: false,
+    provenance: [], access: { status: "metadata-only", ragPermission: "metadata-only" },
+    quality: { authorityTier: "core" }, recordStatus: "demo",
   },
   {
     id: "mat-eor-review", slug: "eor-review", title: "Методы увеличения нефтеотдачи: обзор",
-    authors: ["Редакция ПЛАСТ"], year: 2025, type: "article", language: "ru",
-    topics: ["enhanced-oil-recovery", "development"], aliases: ["МУН", "EOR"],
+    authors: [{ fullName: "Редакция ПЛАСТ" }], year: 2025, type: "review-article", language: "ru",
+    topics: ["enhanced-oil-recovery", "development"], keywords: ["МУН", "EOR"],
     description: "Краткий обзор основных групп методов увеличения нефтеотдачи и условий их инженерного применения.",
-    coverColor: "#6c5539", verified: false,
+    provenance: [], access: { status: "metadata-only", ragPermission: "metadata-only" },
+    quality: { authorityTier: "supplementary" }, recordStatus: "demo",
   },
   {
     id: "mat-eclipse-manual", slug: "eclipse-manual", title: "Руководство по подготовке модели ECLIPSE",
-    authors: ["Учебный центр"], year: 2024, type: "manual", language: "en",
-    topics: ["eclipse", "modeling", "petroleum-software"], aliases: ["ECLIPSE", "симулятор"],
+    authors: [{ fullName: "Учебный центр" }], year: 2024, type: "software-documentation", language: "en",
+    topics: ["eclipse", "modeling", "petroleum-software"], keywords: ["ECLIPSE", "симулятор"],
     description: "Демонстрационная карточка технического руководства по структуре исходных данных и подготовке расчётной модели.",
-    coverColor: "#48515c", verified: false,
+    provenance: [], access: { status: "metadata-only", ragPermission: "metadata-only" },
+    quality: { authorityTier: "supplementary" }, recordStatus: "demo",
   },
 ];
 
-export const books = materials.slice(0, 5);
+assertSourceRegistry(sources, allTopics.map((topic) => topic.id));
+
+export const materials = sources;
+export const books = sources.slice(0, 5);
+
+export const sourceCoverColors: Record<string, string> = {
+  "mat-reservoir-engineering": "#9c6538",
+  "mat-well-test-analysis": "#3b586b",
+  "mat-reservoir-simulation": "#8c4734",
+  "mat-pvt-properties": "#3f5c50",
+  "mat-geological-modeling": "#5e536a",
+  "mat-eor-review": "#6c5539",
+  "mat-eclipse-manual": "#48515c",
+};

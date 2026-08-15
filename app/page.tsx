@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BookCover, SearchField, SectionHeader } from "./components";
-import { books, materialLanguageLabels, materialTypeLabels, materials, topics } from "./data";
+import { books, materialLanguageLabels, materials, sourceTypeLabels, topics } from "./data";
 
 export default function Home() {
   return (
@@ -43,7 +43,7 @@ export default function Home() {
           {books.slice(0, 5).map((book, index) => (
             <Link className="book-card" href={`/library/${book.slug}`} prefetch={false} key={book.slug}>
               <BookCover book={book} index={index} />
-              <h3>{book.title}</h3><p>{book.authors.join(", ")}</p><span>{book.year}</span>
+              <h3>{book.title}</h3><p>{book.authors.map((author) => author.fullName).join(", ")}</p><span>{book.year}</span>
             </Link>
           ))}
         </div>
@@ -62,7 +62,7 @@ export default function Home() {
         <SectionHeader index="04" title="Новые материалы" href="/library" linkText="Смотреть библиотеку" />
         <div className="material-table" role="table" aria-label="Новые материалы">
           <div className="material-head" role="row"><span>Название</span><span>Тип</span><span>Год</span><span>Язык</span></div>
-          {materials.slice(0, 5).map((item) => <Link href={`/library/${item.slug}`} prefetch={false} className="material-row" role="row" key={item.id}><strong>{item.title}</strong><span>{materialTypeLabels[item.type]}</span><span>{item.year}</span><span>{materialLanguageLabels[item.language]}</span></Link>)}
+          {materials.slice(0, 5).map((item) => <Link href={`/library/${item.slug}`} prefetch={false} className="material-row" role="row" key={item.id}><strong>{item.title}</strong><span>{sourceTypeLabels[item.type]}</span><span>{item.year}</span><span>{materialLanguageLabels[item.language]}</span></Link>)}
         </div>
       </section>
     </main>

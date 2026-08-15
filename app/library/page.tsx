@@ -4,10 +4,12 @@ import { BookCover, LibraryFilterForm } from "../components";
 import {
   getTopicById,
   materialLanguageLabels,
-  materialTypeLabels,
-  materials,
+  sourceAccessStatusLabels,
+  sourceRecordStatusLabels,
+  sources,
+  sourceTypeLabels,
 } from "../data";
-import { filterMaterials, parseLibraryFilters, pluralizeMaterials } from "../library-search";
+import { filterSources, parseLibraryFilters, pluralizeMaterials } from "../library-search";
 
 export const metadata: Metadata = {
   title: "Библиотека",
@@ -18,10 +20,10 @@ type LibrarySearchParams = Promise<Record<string, string | string[] | undefined>
 
 export default async function LibraryPage({ searchParams }: { searchParams: LibrarySearchParams }) {
   const filters = parseLibraryFilters(await searchParams);
-  const filteredMaterials = filterMaterials(materials, filters);
-  const resultCount = pluralizeMaterials(filteredMaterials.length);
+  const filteredSources = filterSources(sources, filters);
+  const resultCount = pluralizeMaterials(filteredSources.length);
   const selectedTopic = getTopicById(filters.topic);
-  const years = [...new Set(materials.flatMap((material) => material.year ? [material.year] : []))].sort((a, b) => b - a);
+  const years = [...new Set(sources.flatMap((source) => source.year ? [source.year] : []))].sort((a, b) => b - a);
   const hasFilters = Boolean(filters.query || filters.type || filters.language || filters.year || filters.topic);
 
   return (
@@ -44,19 +46,29 @@ export default async function LibraryPage({ searchParams }: { searchParams: Libr
         </section>
       )}
 
-      {filteredMaterials.length > 0 ? (
+      {filteredSources.length > 0 ? (
         <div className="catalog-grid" data-testid="catalog-results">
-          {filteredMaterials.map((material, index) => (
-            <Link href={`/library/${material.slug}`} prefetch={false} className="catalog-item" key={material.id}>
-              <BookCover book={material} index={index} />
+          {filteredSources.map((source, index) => {
+            const linkedTopics = source.topics.map(getTopicById).filter((topic) => Boolean(topic));
+            return (
+            <Link href={`/library/${source.slug}`} prefetch={false} className="catalog-item" key={source.id}>
+              <BookCover book={source} index={index} />
               <div>
-                <p>{materialTypeLabels[material.type]} · {materialLanguageLabels[material.language]}</p>
-                <h2>{material.title}</h2>
-                <span>{material.authors.join(", ")}</span>
-                <small>{material.year ?? "Год не указан"}</small>
+                <p>{sourceTypeLabels[source.type]} · {materialLanguageLabels[source.language]}</p>
+                <h2>{source.title}</h2>
+                <span>{source.authors.map((author) => author.fullName).join(", ")}</span>
+                <small>{source.year ?? "Год не указан"}</small>
+                <p className="catalog-description">{source.description}</p>
+                <div className="catalog-topics" aria-label="Темы источника">
+                  {linkedTopics.slice(0, 3).map((topic) => <span key={topic?.id}>{topic?.title}</span>)}
+                </div>
+                <div className="catalog-status">
+                  <span>{sourceAccessStatusLabels[source.access.status]}</span>
+                  <span>{sourceRecordStatusLabels[source.recordStatus]}</span>
+                </div>
               </div>
             </Link>
-          ))}
+          );})}
         </div>
       ) : (
         <section className="library-empty" aria-labelledby="library-empty-title">

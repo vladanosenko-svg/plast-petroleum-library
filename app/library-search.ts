@@ -1,13 +1,16 @@
 import {
   allTopics,
   getTopicById,
+  type KnowledgeTopic,
+} from "./data";
+import {
   materialLanguages,
   materialTypes,
-  type KnowledgeTopic,
-  type Material,
+  materialTypeSources,
   type MaterialLanguage,
   type MaterialType,
-} from "./data";
+  type Source,
+} from "./source-registry";
 
 export interface LibraryFilters {
   query: string;
@@ -56,31 +59,37 @@ export function parseLibraryFilters(params: Record<string, string | string[] | u
   };
 }
 
-export function filterMaterials(source: readonly Material[], filters: LibraryFilters) {
+export function filterSources(source: readonly Source[], filters: LibraryFilters) {
   const normalizedQuery = normalizeSearchQuery(filters.query);
 
-  return source.filter((material) => {
-    if (filters.type && material.type !== filters.type) return false;
-    if (filters.language && material.language !== filters.language) return false;
-    if (filters.year && material.year !== filters.year) return false;
-    if (filters.topic && !material.topics.includes(filters.topic)) return false;
+  return source.filter((item) => {
+    if (filters.type && !materialTypeSources[filters.type].includes(item.type)) return false;
+    if (filters.language && item.language !== filters.language) return false;
+    if (filters.year && item.year !== filters.year) return false;
+    if (filters.topic && !item.topics.includes(filters.topic)) return false;
     if (!normalizedQuery) return true;
 
-    const linkedTopicTerms = material.topics
+    const linkedTopicTerms = item.topics
       .map(getTopicById)
       .filter((topic): topic is KnowledgeTopic => Boolean(topic))
       .flatMap(topicTerms);
     const searchableText = normalizeSearchQuery([
-      material.title,
-      ...material.authors,
-      material.description,
-      ...material.aliases,
+      item.title,
+      item.subtitle ?? "",
+      ...item.authors.map((author) => author.fullName),
+      item.description,
+      ...(item.keywords ?? []),
+      item.identifiers?.doi ?? "",
+      item.identifiers?.isbn10 ?? "",
+      item.identifiers?.isbn13 ?? "",
       ...linkedTopicTerms,
     ].join(" "));
 
     return searchableText.includes(normalizedQuery);
   });
 }
+
+export const filterMaterials = filterSources;
 
 export function pluralizeMaterials(count: number) {
   const lastTwoDigits = count % 100;

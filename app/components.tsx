@@ -7,7 +7,8 @@ import {
   allTopics,
   materialLanguageLabels,
   materialTypeLabels,
-  type Material,
+  sourceCoverColors,
+  type Source,
 } from "./data";
 import type { LibraryFilters } from "./library-search";
 
@@ -65,8 +66,8 @@ export function SearchField({ compact = false, defaultQuery = "" }: { compact?: 
 }
 
 export function SectionHeader({ index, title, href, linkText }: { index: string; title: string; href: string; linkText: string }) { return <div className="section-header"><span>{index}</span><h2>{title}</h2><Link href={href} prefetch={false}>{linkText} →</Link></div>; }
-export function BookCover({ book, index = 0 }: { book: Material; index?: number }) {
-  return <div className="book-cover" style={{ backgroundColor: book.coverColor ?? "#3b586b" }}><span>ПЛАСТ / {String(index + 1).padStart(2, "0")}</span><div><i /><h4>{book.title}</h4><p>{book.authors.join(", ")}</p></div><small>{book.year ?? "—"}</small></div>;
+export function BookCover({ book, index = 0 }: { book: Source; index?: number }) {
+  return <div className="book-cover" style={{ backgroundColor: sourceCoverColors[book.id] ?? "#3b586b" }}><span>ПЛАСТ / {String(index + 1).padStart(2, "0")}</span><div><i /><h4>{book.title}</h4><p>{book.authors.map((author) => author.fullName).join(", ")}</p></div><small>{book.year ?? "—"}</small></div>;
 }
 
 export function LibraryFilterForm({ filters, years }: { filters: LibraryFilters; years: number[] }) {

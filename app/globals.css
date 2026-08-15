@@ -37,6 +37,17 @@ footer{border-top:1px solid var(--ink);padding-block:44px 58px}.footer-grid{disp
 .library-empty{max-width:760px;padding:clamp(40px,6vw,76px) 0;border-top:1px solid var(--ink)}
 .library-empty h2{margin:0;font-family:var(--font-editorial),Georgia,serif;font-size:clamp(34px,4vw,54px);font-weight:500;line-height:1.05;letter-spacing:-.03em}
 .library-empty>p:not(.eyebrow){margin:18px 0 28px;color:var(--muted);font-size:17px}
+.catalog-item>div>p.catalog-description{display:-webkit-box;margin:16px 0 0;color:var(--muted);font-size:13px;line-height:1.45;text-transform:none;letter-spacing:0;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.catalog-topics{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.catalog-item .catalog-topics span{display:inline-block;padding-bottom:2px;border-bottom:1px solid var(--line);color:var(--muted);font-size:10px}
+.catalog-status{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.catalog-item .catalog-status span{display:inline-block;padding:4px 6px;border:1px solid var(--line);color:var(--muted);font-size:8px;text-transform:uppercase;letter-spacing:.06em}
+.material-status.candidate{border-color:var(--accent);color:var(--accent)}
+.publication-subtitle{max-width:720px;margin:18px 0 0;color:var(--muted);font-family:var(--font-editorial),Georgia,serif;font-size:clamp(20px,2vw,28px)}
+.source-provenance{margin:72px 0 0 43%;padding-top:24px;border-top:1px solid var(--ink)}
+.source-provenance h2{margin:0;font-family:var(--font-editorial),Georgia,serif;font-size:clamp(28px,3vw,42px);font-weight:500}
+.source-provenance ul{margin:24px 0 0;padding:0;border-top:1px solid var(--line);list-style:none}
+.source-provenance li{padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
 
 .section-note{margin:-28px 0 24px 70px;color:var(--muted);font-size:12px;letter-spacing:.04em}
 .topics-intro{max-width:980px}
@@ -84,6 +95,7 @@ footer{border-top:1px solid var(--ink);padding-block:44px 58px}.footer-grid{disp
   .filter-submit,.filter-reset{justify-self:start}
   .knowledge-topic-list{grid-template-columns:1fr}
   .knowledge-topic-list li:nth-child(odd),.knowledge-topic-list li:nth-child(even){padding-inline:0;border-right:0}
+  .source-provenance{margin-left:0}
 }
 
 @media(max-width:640px){

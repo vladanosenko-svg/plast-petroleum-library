@@ -5,70 +5,96 @@ import { BookCover } from "../../components";
 import {
   getTopicById,
   materialLanguageLabels,
-  materialTypeLabels,
-  materials,
+  sourceAccessStatusLabels,
+  sourceProviderLabels,
+  sourceRecordStatusLabels,
+  sources,
+  sourceTypeLabels,
 } from "../../data";
 
-type MaterialPageProps = { params: Promise<{ slug: string }> };
+type SourcePageProps = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
-  return materials.map((material) => ({ slug: material.slug }));
+  return sources.map((source) => ({ slug: source.slug }));
 }
 
-export async function generateMetadata({ params }: MaterialPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: SourcePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const material = materials.find((item) => item.slug === slug);
-  if (!material) return {};
+  const source = sources.find((item) => item.slug === slug);
+  if (!source) return {};
 
   return {
-    title: material.title,
-    description: material.description,
+    title: source.title,
+    description: source.description,
     openGraph: {
-      title: `${material.title} — ПЛАСТ`,
-      description: material.description,
+      title: `${source.title} — ПЛАСТ`,
+      description: source.description,
     },
   };
 }
 
-export default async function MaterialPage({ params }: MaterialPageProps) {
+export default async function SourcePage({ params }: SourcePageProps) {
   const { slug } = await params;
-  const material = materials.find((item) => item.slug === slug);
-  if (!material) notFound();
-  const linkedTopics = material.topics.map(getTopicById).filter((topic) => Boolean(topic));
+  const source = sources.find((item) => item.slug === slug);
+  if (!source) notFound();
+  const linkedTopics = source.topics.map(getTopicById).filter((topic) => Boolean(topic));
 
   return (
     <main className="shell publication page-space">
       <nav className="breadcrumbs" aria-label="Хлебные крошки">
-        <Link href="/library" prefetch={false}>Библиотека</Link><span aria-hidden="true">/</span><span>{materialTypeLabels[material.type]}</span>
+        <Link href="/library" prefetch={false}>Библиотека</Link><span aria-hidden="true">/</span><span>{sourceTypeLabels[source.type]}</span>
       </nav>
       <div className="publication-grid">
-        <BookCover book={material} />
+        <BookCover book={source} />
         <article>
-          <p className="eyebrow">{materialTypeLabels[material.type]}{material.year ? ` / ${material.year}` : ""}</p>
-          <h1>{material.title}</h1>
-          <p className="publication-author">{material.authors.join(", ")}</p>
-          <p className={`material-status ${material.verified ? "verified" : "demo"}`}>{material.verified ? "Проверенный источник" : "Демонстрационный материал"}</p>
+          <p className="eyebrow">{sourceTypeLabels[source.type]}{source.year ? ` / ${source.year}` : ""}</p>
+          <h1>{source.title}</h1>
+          {source.subtitle && <p className="publication-subtitle">{source.subtitle}</p>}
+          <p className="publication-author">{source.authors.map((author) => author.fullName).join(", ")}</p>
+          <p className={`material-status ${source.recordStatus}`}>{sourceRecordStatusLabels[source.recordStatus]}</p>
           <dl>
-            <div><dt>Язык</dt><dd>{materialLanguageLabels[material.language]}</dd></div>
-            {material.year && <div><dt>Год</dt><dd>{material.year}</dd></div>}
-            <div><dt>Тип</dt><dd>{materialTypeLabels[material.type]}</dd></div>
-            {material.source && <div><dt>Источник</dt><dd>{material.source.name}</dd></div>}
+            <div><dt>Язык</dt><dd>{materialLanguageLabels[source.language]}</dd></div>
+            {source.year && <div><dt>Год</dt><dd>{source.year}</dd></div>}
+            <div><dt>Тип</dt><dd>{sourceTypeLabels[source.type]}</dd></div>
+            <div><dt>Доступ</dt><dd>{sourceAccessStatusLabels[source.access.status]}</dd></div>
+            {source.identifiers?.doi && <div><dt>DOI</dt><dd>{source.identifiers.doi}</dd></div>}
+            {(source.identifiers?.isbn13 || source.identifiers?.isbn10) && <div><dt>ISBN</dt><dd>{source.identifiers.isbn13 ?? source.identifiers.isbn10}</dd></div>}
+            {source.publication?.publisher && <div><dt>Издатель</dt><dd>{source.publication.publisher}</dd></div>}
+            {source.publication?.journal && <div><dt>Журнал</dt><dd>{source.publication.journal}</dd></div>}
+            {source.publication?.edition && <div><dt>Издание</dt><dd>{source.publication.edition}</dd></div>}
           </dl>
-          <div className="topic-tags" aria-label="Темы материала">
+          <div className="topic-tags" aria-label="Темы источника">
             {linkedTopics.map((topic) => <Link href={`/library?topic=${topic?.id}`} prefetch={false} key={topic?.id}>{topic?.title}</Link>)}
           </div>
-          {material.externalUrl ? (
-            <a className="primary-link" href={material.externalUrl} target="_blank" rel="noopener noreferrer">Читать в источнике ↗</a>
+          {source.access.status === "external-fulltext" && source.access.externalUrl ? (
+            <a className="primary-link" href={source.access.externalUrl} target="_blank" rel="noopener noreferrer">Открыть источник ↗</a>
+          ) : source.access.status === "local-fulltext" ? (
+            <p className="source-unavailable">Документ будет доступен для чтения</p>
+          ) : source.access.status === "external-fulltext" ? (
+            <p className="source-unavailable">Ссылка на внешний источник уточняется</p>
           ) : (
-            <p className="source-unavailable">Источник пока не добавлен</p>
+            <p className="source-unavailable">Полный текст недоступен в PLAST. Источник пока не добавлен.</p>
           )}
         </article>
       </div>
       <section className="contents" aria-labelledby="overview-title">
         <p className="eyebrow">Краткое содержание</p>
-        <h2 id="overview-title">Обзор материала</h2>
-        <p>{material.description}</p>
+        <h2 id="overview-title">Об источнике</h2>
+        <p>{source.description}</p>
       </section>
+      {source.provenance.length > 0 && (
+        <section className="source-provenance" aria-labelledby="provenance-title">
+          <p className="eyebrow">Происхождение записи</p>
+          <h2 id="provenance-title">Где найдены сведения</h2>
+          <ul>
+            {source.provenance.map((item) => (
+              <li key={`${item.provider}:${item.providerRecordId ?? item.url}`}>
+                <a href={item.url} target="_blank" rel="noopener noreferrer">{sourceProviderLabels[item.provider]} ↗</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </main>
   );
 }

@@ -35,10 +35,15 @@ test("primary navigation changes the URL and page", async ({ page }) => {
 
 test("library card opens an individual material with metadata", async ({ page }) => {
   await page.goto("/library");
-  await page.locator(".catalog-item").first().click();
+  const firstCard = page.locator(".catalog-item").first();
+  await expect(firstCard.getByText("Только библиографические данные")).toBeVisible();
+  await expect(firstCard.getByText("Демонстрационный материал")).toBeVisible();
+  await firstCard.click();
   await expect(page).toHaveURL(/\/library\/reservoir-engineering$/);
   await expect(page).toHaveTitle("Физика нефтяного и газового пласта — ПЛАСТ");
   await expect(page.getByText("Демонстрационный материал")).toBeVisible();
+  await expect(page.getByText("Только библиографические данные")).toBeVisible();
+  await expect(page.getByText("Полный текст недоступен в PLAST")).toBeVisible();
   await expect(page.getByText("Источник пока не добавлен")).toBeVisible();
   await page.getByRole("link", { name: "Библиотека" }).first().click();
   await expect(page).toHaveURL(/\/library$/);
@@ -152,15 +157,20 @@ test("pages do not overflow across required viewports and themes", async ({ page
   }
 });
 
-test("all seven material pages render on mobile and desktop", async ({ page }) => {
+test("all seven source pages render at required widths in both themes", async ({ page }) => {
+  test.setTimeout(120_000);
   const slugs = ["reservoir-engineering", "well-test-analysis", "reservoir-simulation", "pvt-properties", "geological-modeling", "eor-review", "eclipse-manual"];
-  for (const width of [320, 1440]) {
-    await page.setViewportSize({ width, height: 900 });
-    for (const slug of slugs) {
-      await page.goto(`/library/${slug}`);
-      await expect(page.locator(".publication h1")).toBeVisible();
-      const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
-      expect(fits, `${width}px ${slug}`).toBe(true);
+  for (const theme of ["light", "dark"]) {
+    await page.addInitScript((selectedTheme) => localStorage.setItem("theme", selectedTheme), theme);
+    for (const width of [320, 390, 1024, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const slug of slugs) {
+        await page.goto(`/library/${slug}`);
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        await expect(page.locator(".publication h1")).toBeVisible();
+        const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+        expect(fits, `${theme} ${width}px ${slug}`).toBe(true);
+      }
     }
   }
 });

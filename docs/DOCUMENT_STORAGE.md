@@ -48,6 +48,8 @@ npm run document:inspect -- path/to/file.pdf
 
 Команда только проверяет локальный файл и выводит metadata; в production ничего не загружает.
 
+Для закрытого Sites deployment `npm run smoke:live` принимает временный bypass token через `PLAST_SITES_AUTH_TOKEN`; token не хранится в репозитории.
+
 ## Следующие этапы
 
 3C.2 добавит reader. Извлечение текста, OCR, страницы, chunks, embeddings и AI/RAG в 3C.1 отсутствуют.

@@ -1,5 +1,19 @@
 # Статус этапов
 
+## 3C.1 — Document Storage Foundation
+
+Статус: завершён 2026-08-16.
+
+Выполнено:
+
+- добавлены Cloudflare R2 binding `DOCUMENTS` и изолированный storage adapter;
+- реализованы PUT/GET/HEAD/DELETE primitives, validation пяти форматов, SHA-256, deterministic keys и duplicate binary detection;
+- усилена целостность `local-fulltext`, добавлено чистое прикрепление metadata без изменения Source status или RAG-прав;
+- подготовлена безопасная выдача через PLAST с HTTP Range и корректными заголовками;
+- добавлены локальный inspector, storage/document tests, документация и live smoke.
+
+Следующий этап: **3C.2 — Document Reader**.
+
 ## 3B — Corpus Planning
 
 Статус: завершён 2026-08-16.

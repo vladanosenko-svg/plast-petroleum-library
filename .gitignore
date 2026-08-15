@@ -44,3 +44,6 @@ yarn-error.log*
 /.wrangler/
 /outputs/
 /work/
+/.tmp/
+/storage-temp/
+/local-documents/

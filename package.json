@@ -12,6 +12,8 @@
     "test": "npm run build && node --test tests/*.test.mjs",
     "test:e2e": "playwright test",
     "corpus:report": "node --experimental-strip-types scripts/corpus-report.mjs",
+    "document:inspect": "node --experimental-strip-types scripts/document-inspect.mjs",
+    "smoke:live": "node scripts/smoke-live.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },

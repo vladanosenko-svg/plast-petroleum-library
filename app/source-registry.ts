@@ -431,6 +431,17 @@ export function validateSourceRegistry(
     if (source.access.status === "local-fulltext" && !source.document?.storageKey?.trim()) {
       add(source, "document.storageKey", "required", "Локальному документу нужен реальный storageKey");
     }
+    if (source.access.status === "local-fulltext") {
+      if (!source.document?.checksumSha256 || !/^[a-f0-9]{64}$/.test(source.document.checksumSha256)) {
+        add(source, "document.checksumSha256", "required", "Локальному документу нужна SHA-256 сумма");
+      }
+      if (!source.document?.fileSizeBytes || !Number.isSafeInteger(source.document.fileSizeBytes) || source.document.fileSizeBytes <= 0) {
+        add(source, "document.fileSizeBytes", "required", "Локальному документу нужен положительный размер файла");
+      }
+      if (!source.document?.format || source.document.format === "other") {
+        add(source, "document.format", "required", "Локальному документу нужен поддерживаемый формат");
+      }
+    }
     for (const field of ["relevanceScore", "qualityScore"] as const) {
       const score = source.quality[field];
       if (score !== undefined && (!Number.isFinite(score) || score < 0 || score > 100)) {

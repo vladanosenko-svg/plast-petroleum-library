@@ -17,6 +17,7 @@ import type {
   DiscoveryProvider,
   DiscoveryQuery,
 } from "./types.ts";
+import type { EngineeringRegistryRecord } from "./engineering-registry.ts";
 import type { OaiPmhRecord } from "./providers/oai-pmh.ts";
 
 type UnknownRecord = Record<string, unknown>;
@@ -126,6 +127,7 @@ const openAlexTypeMap: Partial<Record<string, SourceType>> = {
 
 const crossrefTypeMap: Partial<Record<string, SourceType>> = {
   book: "book",
+  "book-chapter": "book-chapter",
   dissertation: "dissertation",
   "journal-article": "journal-article",
   monograph: "monograph",
@@ -422,6 +424,78 @@ export function normalizeOaiPmhRecord(
   });
 }
 
+export function normalizeEngineeringRegistryRecord(
+  raw: EngineeringRegistryRecord,
+  query: DiscoveryQuery,
+  discoveredAt: string,
+): DiscoveryCandidate | undefined {
+  if (!raw.id || !raw.title || !raw.landingPage || !raw.topicIds.includes(query.topicId)) return undefined;
+  const landingPage = normalizeUrl(raw.landingPage);
+  if (!landingPage) return undefined;
+  const doi = normalizeDoi(raw.identifiers?.doi);
+  const isbn = normalizeIsbnValues(raw.identifiers?.isbn);
+  const authors = (raw.authors ?? []).flatMap((value) => {
+    const author = authorFromDisplayName(value);
+    return author ? [author] : [];
+  });
+
+  return createCandidate({
+    title: raw.title,
+    normalizedTitle: normalizeTitle(raw.title),
+    description: raw.description,
+    keywords: [...raw.keywords],
+    authors,
+    publicationYear: raw.publicationYear,
+    sourceType: raw.sourceType,
+    language: raw.language,
+    identifiers: {
+      doi,
+      isbn,
+      issn: raw.identifiers?.issn,
+    },
+    publication: compactObject({
+      publisher: raw.publication?.publisher,
+      institution: raw.publication?.institution,
+      conference: raw.publication?.conference,
+    }),
+    urls: compactObject({
+      landingPage,
+      doi: doi ? `https://doi.org/${doi}` : undefined,
+    }),
+    accessHint: raw.accessHint,
+    providerMetadata: {
+      originProviderId: raw.originProviderId,
+      evidenceUrls: [...raw.evidenceUrls],
+      officialSource: String(raw.officialSource),
+    },
+    engineering: {
+      knowledgeLayers: [...raw.knowledgeLayers],
+      authority: raw.authority,
+      access: { ...raw.access },
+      software: raw.software ? {
+        ...raw.software,
+        productIds: [...raw.software.productIds],
+        productNames: [...raw.software.productNames],
+      } : undefined,
+      relationships: raw.relationships?.map((relation) => ({ ...relation })),
+    },
+    topicIds: [query.topicId],
+    provenance: [{
+      provider: "engineering-registry",
+      providerRecordId: raw.id,
+      queryId: query.id,
+      topicId: query.topicId,
+      queryLanguage: query.language,
+      discoveredAt,
+      landingPage,
+      originProviderId: raw.originProviderId,
+      authority: raw.authority,
+      officialSource: raw.officialSource,
+    }],
+    recordStatus: "candidate",
+  });
+}
+
 export function normalizeProviderRecord(
   provider: DiscoveryProvider,
   raw: unknown,
@@ -430,5 +504,10 @@ export function normalizeProviderRecord(
 ) {
   if (provider === "openalex") return normalizeOpenAlexRecord(raw, query, discoveredAt);
   if (provider === "crossref") return normalizeCrossrefRecord(raw, query, discoveredAt);
+  if (provider === "engineering-registry") {
+    return isRecord(raw)
+      ? normalizeEngineeringRegistryRecord(raw as unknown as EngineeringRegistryRecord, query, discoveredAt)
+      : undefined;
+  }
   return isRecord(raw) ? normalizeOaiPmhRecord(raw as unknown as OaiPmhRecord, query, discoveredAt) : undefined;
 }

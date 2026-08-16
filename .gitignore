@@ -50,3 +50,5 @@ yarn-error.log*
 /local-documents/
 /data/discovery/*.json
 /data/discovery/*.tmp
+/data/verification/*.json
+/data/verification/*.tmp

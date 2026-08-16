@@ -16,6 +16,8 @@
 - русская страница 404;
 - сохранение выбранной темы оформления.
 
+Discovery engine завершён до этапа 3D.3: international/Russian literature providers и отдельный Engineering & Practical staging для manuals, tutorials, presentations, case studies, example models и datasets. Candidates не публикуются в пользовательском каталоге автоматически.
+
 Материалы пока являются демонстрационными и явно маркируются в интерфейсе. Непроверенные источники и вымышленные metadata не выдаются за реальные публикации. AI/RAG, backend, авторизация и автоматический сбор данных в текущий этап не входят.
 
 ## Требования и запуск
@@ -54,6 +56,19 @@ npm run discovery:report
 ```
 
 Описание архитектуры и безопасного network run: [docs/LITERATURE_DISCOVERY.md](docs/LITERATURE_DISCOVERY.md).
+
+Engineering & Practical Discovery работает по проверенному локальному registry без crawling и скачивания файлов:
+
+```bash
+npm run engineering:providers
+npm run engineering:plan -- --topic modeling
+npm run engineering:run -- --topics modeling,well-testing,petroleum-software --max-total 1000
+npm run engineering:report
+```
+
+Архитектура и provider policy: [docs/ENGINEERING_DISCOVERY.md](docs/ENGINEERING_DISCOVERY.md), [docs/ENGINEERING_DISCOVERY_PROVIDERS.md](docs/ENGINEERING_DISCOVERY_PROVIDERS.md).
+
+Проверка и ранжирование candidates: [docs/CANDIDATE_VERIFICATION.md](docs/CANDIDATE_VERIFICATION.md), [docs/CANDIDATE_RANKING_POLICY.md](docs/CANDIDATE_RANKING_POLICY.md), [docs/CANDIDATE_VERIFICATION_SMOKE.md](docs/CANDIDATE_VERIFICATION_SMOKE.md).
 
 Перед первым локальным запуском E2E при необходимости установите Chromium:
 

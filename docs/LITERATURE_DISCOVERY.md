@@ -111,7 +111,7 @@ DISCOVERY_CONTACT_EMAIL=
 
 ## Limitations and next stages
 
-Provider metadata может не иметь языка, DOI, ISBN, авторов или abstract. OAI-PMH не предоставляет полнотекстовый search, поэтому PLAST делает bounded harvesting профильных sets и conservative local relevance gate. Discovery не выполняет fuzzy deduplication, ranking, verification, crawling, PDF acquisition, R2 ingestion, OCR, chunks или AI. Следующий этап — 3D.3 Specialist Discovery.
+Provider metadata может не иметь языка, DOI, ISBN, авторов или abstract. OAI-PMH не предоставляет полнотекстовый search, поэтому PLAST делает bounded harvesting профильных sets и conservative local relevance gate. Discovery не выполняет fuzzy deduplication, ranking, verification, crawling, PDF acquisition, R2 ingestion, OCR, chunks или AI. Завершённый следующий этап — 3D.3 Engineering & Practical Discovery; описание находится в [ENGINEERING_DISCOVERY.md](./ENGINEERING_DISCOVERY.md).
 
 ## Russian Discovery (3D.2)
 

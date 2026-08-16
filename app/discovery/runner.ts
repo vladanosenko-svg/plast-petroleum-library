@@ -1,7 +1,7 @@
 import { validateDiscoveryLimits } from "./config.ts";
 import { mergeDiscoveryCandidates } from "./merge.ts";
 import { normalizeProviderRecord } from "./normalize.ts";
-import { isRussianDiscoveryProvider } from "./types.ts";
+import { isEngineeringDiscoveryProvider, isRussianDiscoveryProvider } from "./types.ts";
 import type {
   DiscoveryExecutionResult,
   DiscoveryLimits,
@@ -27,6 +27,37 @@ function citationCount(candidate: DiscoveryExecutionResult["candidates"][number]
   return candidate.qualitySignals?.openAlexCitedByCount
     ?? candidate.qualitySignals?.crossrefReferencedByCount
     ?? 0;
+}
+
+const materialDistributionKeys = [
+  "BOOK",
+  "MANUAL",
+  "TUTORIAL",
+  "PRESENTATION",
+  "CASE_STUDY",
+  "TECHNICAL_REPORT",
+  "DATASET",
+  "EXAMPLE_MODEL",
+  "OTHER",
+] as const;
+
+function materialDistribution(candidates: DiscoveryExecutionResult["candidates"]) {
+  const result: Record<string, number> = Object.fromEntries(materialDistributionKeys.map((key) => [key, 0]));
+  for (const candidate of candidates) {
+    const type = candidate.sourceType;
+    const bucket = !type ? "OTHER"
+      : ["book", "book-chapter", "textbook", "study-guide", "monograph"].includes(type) ? "BOOK"
+        : ["manual", "software-documentation"].includes(type) ? "MANUAL"
+          : ["tutorial", "training-material", "workflow", "lecture-note", "course-material", "methodical-material"].includes(type) ? "TUTORIAL"
+            : ["presentation", "webinar"].includes(type) ? "PRESENTATION"
+              : type === "case-study" ? "CASE_STUDY"
+                : ["technical-report", "recommended-practice", "standard", "release-notes"].includes(type) ? "TECHNICAL_REPORT"
+                  : ["dataset", "benchmark"].includes(type) ? "DATASET"
+                    : type === "example-model" ? "EXAMPLE_MODEL"
+                      : "OTHER";
+    result[bucket] += 1;
+  }
+  return result;
 }
 
 export async function runDiscovery(input: RunDiscoveryInput): Promise<DiscoveryExecutionResult> {
@@ -142,10 +173,14 @@ export async function runDiscovery(input: RunDiscoveryInput): Promise<DiscoveryE
         russianProviderCandidates: merged.candidates.filter((candidate) =>
           candidate.provenance.some((item) => isRussianDiscoveryProvider(item.provider)),
         ).length,
+        engineeringCandidates: merged.candidates.filter((candidate) =>
+          candidate.provenance.some((item) => isEngineeringDiscoveryProvider(item.provider)),
+        ).length,
         withOpenAccessMetadata: merged.candidates.filter((candidate) =>
           candidate.openAccess?.isOpenAccess !== undefined || Boolean(candidate.urls?.openAccess),
         ).length,
         fieldConflicts: merged.candidates.reduce((total, candidate) => total + (candidate.fieldConflicts?.length ?? 0), 0),
+        materialTypeDistribution: materialDistribution(merged.candidates),
         examples: [...merged.candidates]
           .sort((left, right) => citationCount(right) - citationCount(left) || left.title.localeCompare(right.title, "en"))
           .slice(0, 10)

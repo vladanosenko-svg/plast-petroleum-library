@@ -1,4 +1,5 @@
 import documentManifest from "./data/source-documents.json" with { type: "json" };
+import verifiedSourceManifest from "./data/verified-sources.json" with { type: "json" };
 import { applyDocumentManifest } from "./document-manifest.ts";
 import { assertSourceRegistry, type Source } from "./source-registry.ts";
 
@@ -160,7 +161,7 @@ export function getTopicById(id: string | undefined) {
 const featuredTopicIds = ["geology", "petrophysics", "pvt", "geomodeling", "development", "modeling", "well-testing", "production"];
 export const topics = featuredTopicIds.map(getTopicById).filter((topic): topic is KnowledgeTopic => Boolean(topic));
 
-const sourceDefinitions: Source[] = [
+const demoSourceDefinitions: Source[] = [
   {
     id: "mat-reservoir-engineering", slug: "reservoir-engineering", title: "Физика нефтяного и газового пласта",
     authors: [{ fullName: "А. М. Коновалов" }], year: 2024, type: "practical-guide", language: "ru",
@@ -217,6 +218,11 @@ const sourceDefinitions: Source[] = [
     provenance: [], access: { status: "metadata-only", ragPermission: "metadata-only" },
     quality: { authorityTier: "supplementary" }, recordStatus: "demo",
   },
+];
+
+const sourceDefinitions: Source[] = [
+  ...demoSourceDefinitions,
+  ...(verifiedSourceManifest as Source[]),
 ];
 
 export const sources = applyDocumentManifest(sourceDefinitions, documentManifest);

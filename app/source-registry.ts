@@ -1,5 +1,6 @@
 export const sourceTypes = [
   "book",
+  "book-chapter",
   "textbook",
   "study-guide",
   "monograph",
@@ -17,6 +18,17 @@ export const sourceTypes = [
   "case-study",
   "methodical-material",
   "course-material",
+  "tutorial",
+  "training-material",
+  "lecture-note",
+  "presentation",
+  "webinar",
+  "workflow",
+  "recommended-practice",
+  "dataset",
+  "example-model",
+  "benchmark",
+  "release-notes",
 ] as const;
 export type SourceType = (typeof sourceTypes)[number];
 
@@ -37,6 +49,7 @@ export const sourceProviders = [
   "semantic-scholar",
   "usgs",
   "onepetro",
+  "engineering-registry",
   "other",
 ] as const;
 export type SourceProvider = (typeof sourceProviders)[number];
@@ -58,6 +71,9 @@ export type AuthorityTier = (typeof authorityTiers)[number];
 
 export const sourceRecordStatuses = ["demo", "candidate", "verified"] as const;
 export type SourceRecordStatus = (typeof sourceRecordStatuses)[number];
+
+export const sourceAvailabilities = ["OPEN", "REGISTRATION_REQUIRED", "AUTH_REQUIRED", "MEMBER_ONLY", "PAID", "UNKNOWN"] as const;
+export type SourceAvailability = (typeof sourceAvailabilities)[number];
 
 export interface SourceAuthor {
   id?: string;
@@ -93,6 +109,8 @@ export interface PublicationMetadata {
 export interface SourceProvenance {
   provider: SourceProvider;
   providerRecordId?: string;
+  originProviderId?: string;
+  officialSource?: boolean;
   url: string;
   discoveredAt?: string;
   metadataRetrievedAt?: string;
@@ -100,9 +118,11 @@ export interface SourceProvenance {
 
 export interface SourceAccess {
   status: SourceAccessStatus;
+  availability?: SourceAvailability;
   openAccess?: boolean;
   license?: string;
   copyrightNote?: string;
+  rightsNote?: string;
   ragPermission: RagPermission;
   externalUrl?: string;
 }
@@ -126,12 +146,46 @@ export interface SourceQuality {
   peerReviewed?: boolean;
 }
 
+export interface SourceSoftwareMetadata {
+  vendorId: string;
+  productIds: string[];
+  productNames: string[];
+  suite?: string;
+  softwareVersion?: string;
+  documentVersion?: string;
+  releaseDate?: string;
+}
+
+export interface SourceRelationship {
+  type: "USES_DATASET" | "TRAINING_FOR" | "DOCUMENTS_PRODUCT" | "EXAMPLE_FOR" | "BENCHMARK_FOR" | "COMPANION_TO";
+  targetId: string;
+  note?: string;
+}
+
+export interface SourceVerification {
+  sourceCandidateId: string;
+  verifiedAt: string;
+  verificationMethod: "RULE_BASED" | "MANUAL_REVIEW";
+  scoringModelVersion: string;
+  verificationReasons: string[];
+  scores: {
+    relevance: number;
+    authority: number;
+    metadataCompleteness: number;
+    versionRelevance: number;
+    corpusValue: number;
+    accessUtility: number;
+    overall: number;
+  };
+}
+
 export interface Source {
   id: string;
   slug: string;
   title: string;
   subtitle?: string;
   authors: SourceAuthor[];
+  organization?: string;
   year?: number;
   language: SourceLanguage;
   type: SourceType;
@@ -140,10 +194,14 @@ export interface Source {
   keywords?: string[];
   identifiers?: SourceIdentifiers;
   publication?: PublicationMetadata;
+  providerMetadata?: Record<string, string | string[]>;
+  software?: SourceSoftwareMetadata;
+  relationships?: SourceRelationship[];
   provenance: SourceProvenance[];
   access: SourceAccess;
   document?: SourceDocument;
   quality: SourceQuality;
+  verification?: SourceVerification;
   recordStatus: SourceRecordStatus;
   createdAt?: string;
   updatedAt?: string;
@@ -151,6 +209,7 @@ export interface Source {
 
 export const sourceTypeLabels: Record<SourceType, string> = {
   book: "Книга",
+  "book-chapter": "Глава книги",
   textbook: "Учебник",
   "study-guide": "Учебное пособие",
   monograph: "Монография",
@@ -168,6 +227,17 @@ export const sourceTypeLabels: Record<SourceType, string> = {
   "case-study": "Практический кейс",
   "methodical-material": "Методический материал",
   "course-material": "Материал курса",
+  tutorial: "Практическое руководство",
+  "training-material": "Учебный материал",
+  "lecture-note": "Конспект лекций",
+  presentation: "Презентация",
+  webinar: "Вебинар",
+  workflow: "Инженерный workflow",
+  "recommended-practice": "Рекомендуемая практика",
+  dataset: "Набор данных",
+  "example-model": "Пример модели",
+  benchmark: "Бенчмарк",
+  "release-notes": "Примечания к выпуску",
 };
 
 export const sourceLanguageLabels: Record<SourceLanguage, string> = {
@@ -190,6 +260,7 @@ export const sourceProviderLabels: Record<SourceProvider, string> = {
   "semantic-scholar": "Semantic Scholar",
   usgs: "USGS",
   onepetro: "OnePetro",
+  "engineering-registry": "Engineering & Practical Registry",
   other: "Другой источник",
 };
 
@@ -219,11 +290,11 @@ export const materialTypeLabels: Record<MaterialType, string> = {
 };
 
 export const materialTypeSources: Record<MaterialType, readonly SourceType[]> = {
-  book: ["book", "textbook", "monograph"],
-  article: ["journal-article", "review-article", "conference-paper", "spe-paper", "case-study"],
-  guide: ["study-guide", "practical-guide", "methodical-material", "course-material"],
-  manual: ["manual", "software-documentation", "technical-report"],
-  standard: ["standard", "dissertation", "thesis-abstract"],
+  book: ["book", "book-chapter", "textbook", "monograph"],
+  article: ["journal-article", "review-article", "conference-paper", "spe-paper", "case-study", "presentation", "webinar"],
+  guide: ["study-guide", "practical-guide", "methodical-material", "course-material", "tutorial", "training-material", "lecture-note", "workflow"],
+  manual: ["manual", "software-documentation", "technical-report", "release-notes"],
+  standard: ["standard", "recommended-practice", "dissertation", "thesis-abstract", "dataset", "example-model", "benchmark"],
 };
 
 export const materialLanguages = sourceLanguages;
@@ -387,13 +458,14 @@ export function validateSourceRegistry(
     if (seenSlugs.has(source.slug)) add(source, "slug", "duplicate", "Slug источника должен быть уникальным");
     seenSlugs.add(source.slug);
     if (!source.title.trim()) add(source, "title", "required", "Название источника обязательно");
-    if (source.authors.length === 0) add(source, "authors", "required", "Нужен хотя бы один автор");
+    if (source.authors.length === 0 && !source.organization?.trim()) add(source, "authors", "required", "Нужен хотя бы один автор или организация");
     source.authors.forEach((author, index) => {
       if (!author.fullName.trim()) add(source, `authors.${index}.fullName`, "required", "Имя автора обязательно");
     });
     if (!sourceTypes.includes(source.type)) add(source, "type", "invalid-enum", "Неизвестный тип источника");
     if (!sourceLanguages.includes(source.language)) add(source, "language", "invalid-enum", "Неизвестный язык источника");
     if (!sourceAccessStatuses.includes(source.access.status)) add(source, "access.status", "invalid-enum", "Неизвестный статус доступа");
+    if (source.access.availability && !sourceAvailabilities.includes(source.access.availability)) add(source, "access.availability", "invalid-enum", "Неизвестная доступность источника");
     if (!ragPermissions.includes(source.access.ragPermission)) add(source, "access.ragPermission", "invalid-enum", "Неизвестное RAG-разрешение");
     if (!authorityTiers.includes(source.quality.authorityTier)) add(source, "quality.authorityTier", "invalid-enum", "Неизвестный уровень качества");
     if (!sourceRecordStatuses.includes(source.recordStatus)) add(source, "recordStatus", "invalid-enum", "Неизвестный статус записи");
@@ -452,6 +524,16 @@ export function validateSourceRegistry(
     }
     if (source.quality.citationCount !== undefined && (!Number.isInteger(source.quality.citationCount) || source.quality.citationCount < 0)) {
       add(source, "quality.citationCount", "invalid-count", "Число цитирований не может быть отрицательным");
+    }
+    if (source.recordStatus === "verified" && !source.verification) {
+      add(source, "verification", "required", "Проверенному источнику нужны verification metadata");
+    }
+    if (source.verification) {
+      if (!source.verification.sourceCandidateId.trim()) add(source, "verification.sourceCandidateId", "required", "Нужен candidate ID");
+      if (!source.verification.scoringModelVersion.trim()) add(source, "verification.scoringModelVersion", "required", "Нужна версия scoring model");
+      for (const [field, score] of Object.entries(source.verification.scores)) {
+        if (!Number.isFinite(score) || score < 0 || score > 100) add(source, `verification.scores.${field}`, "invalid-score", "Оценка должна быть от 0 до 100");
+      }
     }
   }
   return issues;

@@ -1,10 +1,56 @@
 # Статус этапов
 
 ```text
-3D.1 Literature Discovery Core      DONE
-3D.2 Russian Literature Discovery   DONE
-3D.3 Specialist Discovery           NEXT
+3D.1 International Literature Discovery              DONE
+     ├ OpenAlex
+     └ Crossref
+3D.2 Russian Literature Discovery                   DONE
+     ├ КиберЛенинка OAI-PMH
+     ├ КФУ OAI-PMH
+     ├ РГБ / НЭБ — MANUAL_ONLY
+     ├ ЭНБ Губкина / ТИУ / Горный — REQUIRES_PERMISSION
+     └ ТПУ — DEFER
+3D.3 Domain, Engineering & Practical Discovery       DONE
+3D.4 Candidate Verification, Deduplication & Ranking DONE
+3D.5 Open Access / Document Acquisition              NEXT
 ```
+
+## 3D.4 — Candidate Verification, Deduplication & Ranking
+
+Статус: завершён 16 августа 2026 года.
+
+Выполнено:
+
+- поверх общего Discovery Staging реализован deterministic verification pipeline без второго candidate catalogue;
+- добавлены explainable scores `relevance`, `authority`, `metadataCompleteness`, `versionRelevance`, `corpusValue`, `accessUtility` и versioned overall policy `candidate-ranking-v1`;
+- primary/secondary topic matching работает для RU/EN, подавляет общие слова и не штрафует русские источники за отсутствие DOI;
+- type-aware metadata/version rules различают books, articles, manuals, tutorials, standards, datasets и example models; legacy не означает rejection;
+- exact duplicates проверяются внутри staging и против Source Registry; fuzzy detection использует blocking keys и всегда ведёт в `REVIEW_REQUIRED`, fuzzy auto merge отключён;
+- metadata conflicts, structured rejection reasons и controlled review queue поддерживают `VERIFY/REJECT/MARK_DUPLICATE/KEEP_SEPARATE`;
+- explicit idempotent promotion разрешён только для `VERIFIED` candidate, сохраняет provenance/version/relationships и не запускает document acquisition/R2;
+- full smoke: 358 candidates, 10 verified, 230 review, 118 rejected, 30 possible duplicates, 15 conflicts, 0 pipeline errors;
+- вручную проверены 30 records (10 international, 10 Russian, 10 engineering): 0 incorrect auto verifications и 0 incorrect rejections;
+- production build, 75 unit/regression tests, 12 E2E tests, lint и TypeScript пройдены.
+
+Следующий этап: **3D.5 — Open Access / Document Acquisition**. Этап не начат.
+
+## 3D.3 — Engineering & Practical Discovery
+
+Статус: завершён 16 августа 2026 года.
+
+Выполнено:
+
+- GeoКнига исследована по robots, sitemap, catalog/card metadata и copyright statement; policy `REQUIRES_PERMISSION`, remote adapter не создан, файлы не скачивались;
+- создан Engineering Vendor Registry для Rock Flow Dynamics/tNavigator, SLB, CMG, KAPPA, Petroleum Experts и Halliburton Landmark с актуальными official domains/products;
+- добавлены Academic/University whitelist и provider matrix для SPE/OnePetro, SEG, AAPG, EAGE, OPM/SINTEF;
+- введены отдельные material types для manuals, tutorials, training, presentations, webinars, workflows, case studies, reports, recommended practices, datasets, example models, benchmarks и release notes;
+- access `OPEN/AUTH_REQUIRED/MEMBER_ONLY/PAID/UNKNOWN` отделён от licence/rights; software/document versions, official provenance и relationships сохраняются при normalization/exact merge;
+- реализованы five-layer Engineering Query Planner и безопасный local curated registry adapter без remote crawling/downloads;
+- university queries ограничены точным domain whitelist; unrestricted `.edu` crawler отсутствует;
+- controlled smoke по 65 темам дал 24 unique engineering candidates во всех обязательных material buckets; public Source Registry не изменился;
+- unit/regression, typecheck, lint и production build пройдены.
+
+Следующий этап: **3D.4 — Candidate Verification, Deduplication & Ranking**.
 
 ## 3D.2 — Russian Literature Discovery
 
@@ -20,7 +66,7 @@
 - controlled PVT/Modeling/Well Testing smoke дал 10 unique Russian-only candidates, включая книги и статью по ГДИС; public Source Registry не изменился;
 - unit/regression, build и E2E пройдены; provider reconnaissance и smoke metrics документированы.
 
-Следующий этап: **3D.3 — Specialist Discovery**.
+Завершённый следующий этап: **3D.3 — Engineering & Practical Discovery**.
 
 ## 3D.1 — Literature Discovery Core
 

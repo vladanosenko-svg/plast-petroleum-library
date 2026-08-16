@@ -3,6 +3,7 @@ import type {
   DiscoveryCandidate,
   DiscoveryFieldConflict,
   DiscoveryProvenance,
+  EngineeringCandidateMetadata,
 } from "./types.ts";
 
 function identityKeys(candidate: DiscoveryCandidate) {
@@ -32,8 +33,8 @@ function intersects(left: DiscoveryCandidate, right: DiscoveryCandidate) {
   return identityKeys(right).some((key) => leftKeys.has(key));
 }
 
-function uniqueSorted(values: readonly (string | undefined)[]) {
-  return [...new Set(values.filter((value): value is string => Boolean(value)))].sort((left, right) =>
+function uniqueSorted<T extends string>(values: readonly (T | undefined)[]): T[] {
+  return [...new Set(values.filter((value): value is T => Boolean(value)))].sort((left, right) =>
     left.localeCompare(right, "en"),
   );
 }
@@ -72,6 +73,34 @@ function mergeDefinedObjects<T extends object>(preferred: T | undefined, fallbac
   return Object.keys(result).length > 0 ? result as T : undefined;
 }
 
+function mergeEngineeringMetadata(
+  preferred: EngineeringCandidateMetadata | undefined,
+  fallback: EngineeringCandidateMetadata | undefined,
+) {
+  if (!preferred) return fallback ? structuredClone(fallback) : undefined;
+  if (!fallback) return structuredClone(preferred);
+  const relationships = new Map<string, NonNullable<EngineeringCandidateMetadata["relationships"]>[number]>();
+  for (const relation of [...(fallback.relationships ?? []), ...(preferred.relationships ?? [])]) {
+    relationships.set(`${relation.type}|${relation.targetId}|${relation.note ?? ""}`, relation);
+  }
+  return {
+    ...fallback,
+    ...preferred,
+    knowledgeLayers: uniqueSorted([...fallback.knowledgeLayers, ...preferred.knowledgeLayers]),
+    access: mergeDefinedObjects(preferred.access, fallback.access) ?? preferred.access,
+    software: preferred.software || fallback.software
+      ? {
+          ...(fallback.software ?? preferred.software),
+          ...(preferred.software ?? fallback.software),
+          vendorId: preferred.software?.vendorId ?? fallback.software?.vendorId ?? "",
+          productIds: uniqueSorted([...(fallback.software?.productIds ?? []), ...(preferred.software?.productIds ?? [])]),
+          productNames: uniqueSorted([...(fallback.software?.productNames ?? []), ...(preferred.software?.productNames ?? [])]),
+        }
+      : undefined,
+    relationships: relationships.size > 0 ? [...relationships.values()] : undefined,
+  } satisfies EngineeringCandidateMetadata;
+}
+
 function mergeCandidate(left: DiscoveryCandidate, right: DiscoveryCandidate): DiscoveryCandidate {
   const conflicts = structuredClone(left.fieldConflicts ?? []);
   for (const conflict of right.fieldConflicts ?? []) {
@@ -80,6 +109,7 @@ function mergeCandidate(left: DiscoveryCandidate, right: DiscoveryCandidate): Di
     else conflicts.push(structuredClone(conflict));
   }
   addConflict(conflicts, "title", left.title, right.title);
+  addConflict(conflicts, "description", left.description, right.description);
   addConflict(conflicts, "publicationYear", left.publicationYear, right.publicationYear);
   addConflict(conflicts, "sourceType", left.sourceType, right.sourceType);
   addConflict(conflicts, "language", left.language, right.language);
@@ -87,6 +117,11 @@ function mergeCandidate(left: DiscoveryCandidate, right: DiscoveryCandidate): Di
   const leftAuthors = uniqueSorted(left.authors.map((author) => normalizeAuthorName(author.fullName))).join("|") || undefined;
   const rightAuthors = uniqueSorted(right.authors.map((author) => normalizeAuthorName(author.fullName))).join("|") || undefined;
   addConflict(conflicts, "authors", leftAuthors, rightAuthors);
+  addConflict(conflicts, "engineering.authority", left.engineering?.authority, right.engineering?.authority);
+  addConflict(conflicts, "engineering.access.availability", left.engineering?.access.availability, right.engineering?.access.availability);
+  addConflict(conflicts, "engineering.access.license", left.engineering?.access.license, right.engineering?.access.license);
+  addConflict(conflicts, "engineering.software.softwareVersion", left.engineering?.software?.softwareVersion, right.engineering?.software?.softwareVersion);
+  addConflict(conflicts, "engineering.software.documentVersion", left.engineering?.software?.documentVersion, right.engineering?.software?.documentVersion);
 
   const publicationFields = ["publisher", "journal", "volume", "issue", "pages", "edition", "city", "conference", "institution"] as const;
   for (const field of publicationFields) {
@@ -103,6 +138,8 @@ function mergeCandidate(left: DiscoveryCandidate, right: DiscoveryCandidate): Di
     ...left,
     title: left.title || right.title,
     normalizedTitle: left.normalizedTitle || right.normalizedTitle,
+    description: left.description ?? right.description,
+    keywords: uniqueSorted([...(left.keywords ?? []), ...(right.keywords ?? [])]),
     publicationYear: left.publicationYear ?? right.publicationYear,
     sourceType: left.sourceType ?? right.sourceType,
     language: left.language ?? right.language,
@@ -118,6 +155,7 @@ function mergeCandidate(left: DiscoveryCandidate, right: DiscoveryCandidate): Di
     urls: mergeDefinedObjects(left.urls, right.urls),
     openAccess: mergeDefinedObjects(left.openAccess, right.openAccess),
     qualitySignals: mergeDefinedObjects(left.qualitySignals, right.qualitySignals),
+    engineering: mergeEngineeringMetadata(left.engineering, right.engineering),
     accessHint: left.accessHint ?? right.accessHint,
     providerMetadata: mergeDefinedObjects(left.providerMetadata, right.providerMetadata),
     topicIds: uniqueSorted([...left.topicIds, ...right.topicIds]),
@@ -131,7 +169,8 @@ function mergeCandidate(left: DiscoveryCandidate, right: DiscoveryCandidate): Di
 }
 
 function providerRank(candidate: DiscoveryCandidate) {
-  return candidate.provenance.some((item) => item.provider === "crossref") ? 0 : 1;
+  if (candidate.provenance.some((item) => item.officialSource)) return 0;
+  return candidate.provenance.some((item) => item.provider === "crossref") ? 1 : 2;
 }
 
 export interface CandidateMergeResult {
@@ -167,5 +206,7 @@ export function mergeDiscoveryStaging(
   existing: readonly DiscoveryCandidate[],
   discovered: readonly DiscoveryCandidate[],
 ) {
-  return mergeDiscoveryCandidates([...existing, ...discovered]).candidates;
+  // Fresh provider metadata is preferred on an exact identity match, while
+  // mergeProvenance still keeps the earliest discovery timestamp.
+  return mergeDiscoveryCandidates([...discovered, ...existing]).candidates;
 }

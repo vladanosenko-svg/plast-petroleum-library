@@ -1,0 +1,242 @@
+[
+  {
+    "candidateId": "doi:10.18799/24131830/2020/6/2678",
+    "direction": "INTERNATIONAL",
+    "smokeTopic": "PVT",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Прямая PVT-тематика, полные journal/DOI metadata и инженерный контекст."
+  },
+  {
+    "candidateId": "doi:10.1021/ie00005a019",
+    "direction": "INTERNATIONAL",
+    "smokeTopic": "PVT",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Классическая PVT-работа; возраст не снижает фундаментальную ценность."
+  },
+  {
+    "candidateId": "doi:10.2118/12777-pa",
+    "direction": "INTERNATIONAL",
+    "smokeTopic": "PTA",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "SPE paper о pressure derivative и well-test interpretation."
+  },
+  {
+    "candidateId": "doi:10.1147/jrd.2009.5429058",
+    "direction": "INTERNATIONAL",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_REJECT",
+    "duplicateExpectation": "NONE",
+    "rationale": "Работа про архитектуру облачных вычислений использует слово reservoir вне нефтегазового смысла."
+  },
+  {
+    "candidateId": "doi:10.18799/24131830/2025/11/4889",
+    "direction": "INTERNATIONAL",
+    "smokeTopic": "HISTORY_MATCHING",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Title указывает на адаптацию модели, но metadata недостаточно для автоматического подтверждения глубины."
+  },
+  {
+    "candidateId": "doi:10.2118/136380-ms",
+    "direction": "INTERNATIONAL",
+    "smokeTopic": "GAS_CONDENSATE",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Прямой SPE field/application material по gas cycling efficiency."
+  },
+  {
+    "candidateId": "doi:10.1016/j.fluid.2015.09.029",
+    "direction": "INTERNATIONAL",
+    "smokeTopic": "GAS_CONDENSATE",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Прямая PVT/EOS работа о газоконденсатной смеси и пластовой воде."
+  },
+  {
+    "candidateId": "doi:10.58351/231214.2023.64.36.003",
+    "direction": "INTERNATIONAL",
+    "smokeTopic": "GAS_CONDENSATE",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Тематика точная, но conference metadata и provenance требуют ручной проверки."
+  },
+  {
+    "candidateId": "doi:10.1134/s0002337x18090099",
+    "direction": "INTERNATIONAL",
+    "smokeTopic": "PVT",
+    "expected": "SHOULD_REJECT",
+    "duplicateExpectation": "NONE",
+    "rationale": "Фазовое равновесие Li–W–Mn–O не относится к нефтегазовой PVT-задаче."
+  },
+  {
+    "candidateId": "doi:10.2118/35528-ms",
+    "direction": "INTERNATIONAL",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "POSSIBLE",
+    "rationale": "Название/авторы/год совпадают с записью другого DOI-префикса; нужен ручной разбор идентификаторов."
+  },
+  {
+    "candidateId": "cyberleninka:https://cyberleninka.ru/article/n/razrabotka-3d-geomehanicheskoy-modeli-uchastka-achimovskih-otlozheniy-odnogo-iz-mestorozhdeniy-kraynego-severa",
+    "direction": "RUSSIAN",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Профильная геомеханическая модель, но карточке требуется дополнительная библиографическая проверка."
+  },
+  {
+    "candidateId": "cyberleninka:https://cyberleninka.ru/article/n/sovmestnoe-geomehanicheskoe-i-gidrodinamicheskoe-modelirovanie-uchastka-achimovskih-otlozheniy-odnogo-iz-mestorozhdeniy-kraynego",
+    "direction": "RUSSIAN",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Точное гидродинамическое моделирование и институциональная журнальная карточка."
+  },
+  {
+    "candidateId": "cyberleninka:https://cyberleninka.ru/article/n/vychislitelnye-eksperimenty-dlya-analiza-gidrodinamicheskih-issledovaniy-skvazhin",
+    "direction": "RUSSIAN",
+    "smokeTopic": "PTA",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Прямой материал по анализу ГДИС; отсутствие DOI не является дефектом."
+  },
+  {
+    "candidateId": "kpfu:oai:dspace.kpfu.ru:net/146396",
+    "direction": "RUSSIAN",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Методические указания КФУ по геостатистике для моделирования залежей."
+  },
+  {
+    "candidateId": "kpfu:oai:dspace.kpfu.ru:net/151003",
+    "direction": "RUSSIAN",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Учебная книга КФУ по разработке нефтяных и газовых месторождений."
+  },
+  {
+    "candidateId": "kpfu:oai:dspace.kpfu.ru:net/158430",
+    "direction": "RUSSIAN",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Профильная университетская книга по моделированию месторождений."
+  },
+  {
+    "candidateId": "kpfu:oai:dspace.kpfu.ru:net/158548",
+    "direction": "RUSSIAN",
+    "smokeTopic": "HISTORY_MATCHING",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Практический university material по Petrel/tNavigator и подготовке ГДМ."
+  },
+  {
+    "candidateId": "kpfu:oai:dspace.kpfu.ru:net/16789",
+    "direction": "RUSSIAN",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Широкая книга одновременно о бурении и разработке; нужно подтвердить глубину по ГДМ."
+  },
+  {
+    "candidateId": "kpfu:oai:dspace.kpfu.ru:net/30212",
+    "direction": "RUSSIAN",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Программа практики полезна как course material, но не как основной technical source."
+  },
+  {
+    "candidateId": "kpfu:oai:dspace.kpfu.ru:net/32592",
+    "direction": "RUSSIAN",
+    "smokeTopic": "PVT",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Нефтяная реология релевантна смежно, но title не подтверждает полноценное PVT-покрытие."
+  },
+  {
+    "candidateId": "engineering-registry:slb-eclipse-installation-guide-2023-1",
+    "direction": "ENGINEERING",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Официальный versioned ECLIPSE manual с прямым vendor provenance."
+  },
+  {
+    "candidateId": "engineering-registry:rfd-tnavigator-manuals",
+    "direction": "ENGINEERING",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Официальная коллекция manuals, но конкретная document version отсутствует."
+  },
+  {
+    "candidateId": "engineering-registry:rfd-tnavigator-tutorials",
+    "direction": "ENGINEERING",
+    "smokeTopic": "HISTORY_MATCHING",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Высокая практическая релевантность, но версия и конкретная tutorial card неоднозначны."
+  },
+  {
+    "candidateId": "engineering-registry:cmg-imex-whats-new-2026-11",
+    "direction": "ENGINEERING",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Официальная текущая presentation, но краткий формат требует оценки инженерной глубины."
+  },
+  {
+    "candidateId": "engineering-registry:slb-petrel-ongc-case-study",
+    "direction": "ENGINEERING",
+    "smokeTopic": "HISTORY_MATCHING",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Официальный vendor field case с практическим результатом."
+  },
+  {
+    "candidateId": "engineering-registry:opm-norne-example-model",
+    "direction": "ENGINEERING",
+    "smokeTopic": "HISTORY_MATCHING",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Официальный воспроизводимый full-field example model."
+  },
+  {
+    "candidateId": "engineering-registry:opm-open-datasets",
+    "direction": "ENGINEERING",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Авторитетный открытый dataset catalogue, но отдельные datasets требуют индивидуальной проверки."
+  },
+  {
+    "candidateId": "engineering-registry:spe-csp11-benchmark",
+    "direction": "ENGINEERING",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_VERIFY",
+    "duplicateExpectation": "NONE",
+    "rationale": "Официальный SPE comparative benchmark с companion relationship."
+  },
+  {
+    "candidateId": "engineering-registry:geokniga-24618",
+    "direction": "ENGINEERING",
+    "smokeTopic": "RESERVOIR_SIMULATION",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Профильная книга, но GeoКнига остаётся metadata-only provider с permission ambiguity."
+  },
+  {
+    "candidateId": "engineering-registry:kappa-ecrin-tutorials-4-30",
+    "direction": "ENGINEERING",
+    "smokeTopic": "PTA",
+    "expected": "SHOULD_REVIEW",
+    "duplicateExpectation": "NONE",
+    "rationale": "Официальные tutorials KAPPA, но версия 4.30 не сопоставлена с текущей product release."
+  }
+]

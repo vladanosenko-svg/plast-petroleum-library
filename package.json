@@ -14,6 +14,9 @@
     "corpus:report": "node --experimental-strip-types scripts/corpus-report.mjs",
     "document:inspect": "node --experimental-strip-types scripts/document-inspect.mjs",
     "document:ingest": "node --experimental-strip-types scripts/document-ingest.mjs",
+    "discovery:plan": "node --env-file-if-exists=.env --experimental-strip-types scripts/discovery-plan.mjs",
+    "discovery:run": "node --env-file-if-exists=.env --experimental-strip-types scripts/discovery-run.mjs",
+    "discovery:report": "node --env-file-if-exists=.env --experimental-strip-types scripts/discovery-report.mjs",
     "smoke:live": "node scripts/smoke-live.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"

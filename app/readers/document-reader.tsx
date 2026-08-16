@@ -65,7 +65,8 @@ function findEndOfCentralDirectory(bytes: Uint8Array) {
 
 async function inflateRaw(bytes: Uint8Array) {
   if (typeof DecompressionStream === "undefined") throw new Error("Browser does not support ZIP decompression");
-  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  const input = new Uint8Array(bytes);
+  const stream = new Blob([input.buffer]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
   return new Uint8Array(await new Response(stream).arrayBuffer());
 }
 

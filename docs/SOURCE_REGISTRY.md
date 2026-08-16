@@ -17,6 +17,8 @@ Source
 
 `SourceDocument` содержит только metadata будущего файла. Бинарный документ, нормализованный текст, chunks и embeddings в Source Registry не входят.
 
+Discovery staging candidate и `Source.recordStatus: "candidate"` — разные уровни жизненного цикла. Результат OpenAlex/Crossref остаётся во внешнем staging и не становится публичной Source записью до последующей дедупликации, проверки и явного переноса.
+
 ## Статусы
 
 - `demo` — тестовая запись интерфейса;

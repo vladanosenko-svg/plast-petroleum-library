@@ -1,5 +1,20 @@
 # Статус этапов
 
+## 3D.1 — Literature Discovery Core
+
+Статус: завершён 2026-08-16.
+
+Выполнено:
+
+- добавлены официальные OpenAlex и Crossref adapters с timeout, polite rate limiting, retry/backoff и partial failure isolation;
+- 65 `TopicCorpusProfile` подключены к детерминированному RU/EN query planner без дублирующей taxonomy;
+- реализованы отдельные DiscoveryCandidate/DiscoveryRun models, provider normalization, query provenance и conservative type mapping;
+- exact merge работает только по DOI, provider IDs и ISBN; fuzzy merge, ranking и verification отсутствуют;
+- staging сохраняется атомарно, повторные runs idempotent, реальные generated candidates не коммитятся и не попадают в публичный каталог;
+- добавлены plan/run/report CLI, mocked provider fixtures, unit/regression tests и controlled PVT/Modeling network smoke.
+
+Следующий этап: **3D.2 — Russian Literature Discovery**.
+
 ## 3C.2 — Document Reader & Controlled Ingestion
 
 Статус: завершён 2026-08-16.

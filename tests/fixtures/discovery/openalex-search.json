@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "count": 2,
+    "per_page": 2,
+    "next_cursor": "next-openalex-cursor"
+  },
+  "results": [
+    {
+      "id": "https://openalex.org/W1001",
+      "doi": "https://doi.org/10.1234/PVT.001",
+      "title": "Reservoir Fluid PVT Properties",
+      "publication_year": 2021,
+      "type": "article",
+      "language": "en",
+      "cited_by_count": 17,
+      "is_retracted": false,
+      "authorships": [
+        {
+          "raw_author_name": "Anna Petrova",
+          "author": {
+            "display_name": "Anna Petrova",
+            "orcid": "https://orcid.org/0000-0001-0002-0003"
+          }
+        },
+        {
+          "author": {
+            "display_name": "John Smith"
+          }
+        }
+      ],
+      "primary_location": {
+        "landing_page_url": "https://example.org/articles/pvt-001",
+        "source": {
+          "display_name": "Journal of Reservoir Studies",
+          "issn": ["1234-567X"],
+          "host_organization_name": "Example Publisher"
+        }
+      },
+      "best_oa_location": {
+        "landing_page_url": "https://repository.example.org/pvt-001",
+        "license": "cc-by"
+      },
+      "open_access": {
+        "is_oa": true,
+        "oa_status": "green",
+        "oa_url": "https://repository.example.org/pvt-001"
+      },
+      "biblio": {
+        "volume": "12",
+        "issue": "3",
+        "first_page": "10",
+        "last_page": "25"
+      }
+    },
+    {
+      "id": "https://openalex.org/W1002",
+      "title": "Equation of State Tuning for Gas Condensate",
+      "publication_year": 2019,
+      "type": "report",
+      "language": null,
+      "cited_by_count": 0,
+      "authorships": []
+    }
+  ]
+}

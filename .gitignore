@@ -34,6 +34,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -47,3 +48,5 @@ yarn-error.log*
 /.tmp/
 /storage-temp/
 /local-documents/
+/data/discovery/*.json
+/data/discovery/*.tmp

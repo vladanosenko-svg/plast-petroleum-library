@@ -1,0 +1,56 @@
+{
+  "status": "ok",
+  "message-type": "work-list",
+  "message": {
+    "next-cursor": "next-crossref-cursor",
+    "items": [
+      {
+        "DOI": "doi:10.1234/pvt.001",
+        "URL": "https://doi.org/10.1234/pvt.001",
+        "title": ["Reservoir Fluid PVT Properties"],
+        "type": "journal-article",
+        "language": "en",
+        "author": [
+          {
+            "given": "Anna",
+            "family": "Petrova",
+            "ORCID": "https://orcid.org/0000-0001-0002-0003"
+          }
+        ],
+        "published-print": {
+          "date-parts": [[2021, 4, 2]]
+        },
+        "published-online": {
+          "date-parts": [[2020, 12, 20]]
+        },
+        "container-title": ["Journal of Reservoir Studies"],
+        "publisher": "Example Publisher",
+        "volume": "12",
+        "issue": "3",
+        "page": "10-25",
+        "ISSN": ["1234-567X"],
+        "is-referenced-by-count": 12
+      },
+      {
+        "DOI": "https://doi.org/10.1234/BOOK.002",
+        "URL": "https://doi.org/10.1234/book.002",
+        "title": ["Petroleum Reservoir Simulation"],
+        "type": "book",
+        "ISBN": ["9780134685991"],
+        "issued": {
+          "date-parts": [[2018]]
+        },
+        "publisher": "Technical Press"
+      },
+      {
+        "DOI": "10.1234/conf.003",
+        "URL": "https://doi.org/10.1234/conf.003",
+        "title": ["Pressure Transient Analysis"],
+        "type": "proceedings-article",
+        "created": {
+          "date-parts": [[2017, 1, 1]]
+        }
+      }
+    ]
+  }
+}

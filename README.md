@@ -46,6 +46,15 @@ npm audit
 
 `npm test` собирает приложение и запускает SSR/data regression-тесты. `npm run test:e2e` запускает Playwright и проверяет реальные переходы, поиск, фильтры, мобильное меню, сохранение темы, console, 404 и отсутствие горизонтального переполнения.
 
+План и отчёт отдельного библиографического discovery staging:
+
+```bash
+npm run discovery:plan -- --topic pvt
+npm run discovery:report
+```
+
+Описание архитектуры и безопасного network run: [docs/LITERATURE_DISCOVERY.md](docs/LITERATURE_DISCOVERY.md).
+
 Перед первым локальным запуском E2E при необходимости установите Chromium:
 
 ```bash

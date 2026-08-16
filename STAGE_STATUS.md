@@ -1,5 +1,19 @@
 # Статус этапов
 
+## 3C.2 — Document Reader & Controlled Ingestion
+
+Статус: завершён 2026-08-16.
+
+Выполнено:
+
+- добавлены controlled ingestion CLI, явный rights guard, atomic JSON manifest и safe replace/duplicate behavior;
+- реализован `/library/[slug]/read` и корректные CTA для local, external и metadata-only источников;
+- добавлены browser-native PDF reader с Range/`?page=N`, безопасные DOCX, EPUB, HTML и TXT readers;
+- R2 и reader failures изолированы на уровне request, добавлены security headers и structured document logs;
+- проверены unit/regression, Cloudflare-like runtime, R2 lifecycle, mobile/desktop E2E и production live.
+
+Следующий этап: **3D — Literature Discovery Engine**.
+
 ## 3C.1 — Document Storage Foundation
 
 Статус: завершён 2026-08-16.

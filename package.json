@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "corpus:report": "node --experimental-strip-types scripts/corpus-report.mjs",
     "document:inspect": "node --experimental-strip-types scripts/document-inspect.mjs",
+    "document:ingest": "node --experimental-strip-types scripts/document-ingest.mjs",
     "smoke:live": "node scripts/smoke-live.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"

@@ -67,9 +67,9 @@ export default async function SourcePage({ params }: SourcePageProps) {
             {linkedTopics.map((topic) => <Link href={`/library?topic=${topic?.id}`} prefetch={false} key={topic?.id}>{topic?.title}</Link>)}
           </div>
           {source.access.status === "external-fulltext" && source.access.externalUrl ? (
-            <a className="primary-link" href={source.access.externalUrl} target="_blank" rel="noopener noreferrer">Открыть источник ↗</a>
-          ) : source.access.status === "local-fulltext" ? (
-            <p className="source-unavailable">Документ будет доступен для чтения</p>
+            <a className="primary-link" href={source.access.externalUrl} target="_blank" rel="noopener noreferrer">Открыть в источнике ↗</a>
+          ) : source.access.status === "local-fulltext" && source.document?.storageKey ? (
+            <><p className="source-available">Полный текст доступен в PLAST</p><Link className="primary-link" href={`/library/${source.slug}/read`} prefetch={false}>Читать документ</Link></>
           ) : source.access.status === "external-fulltext" ? (
             <p className="source-unavailable">Ссылка на внешний источник уточняется</p>
           ) : (

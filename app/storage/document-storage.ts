@@ -135,7 +135,17 @@ export async function storeInspectedDocument(
   const inspected = await inspectDocument(input);
   const storageKey = generateStorageKey(sourceId, inspected.checksumSha256, inspected.extension);
   const existing = await storage.head(storageKey);
-  if (existing) return { document: existing, duplicateBinary: true };
+  if (existing) {
+    if (
+      existing.checksumSha256 !== inspected.checksumSha256
+      || existing.fileSizeBytes !== inspected.fileSizeBytes
+      || existing.mimeType !== inspected.mimeType
+      || existing.format !== inspected.format
+    ) {
+      throw new Error("Existing R2 object metadata does not match the inspected document");
+    }
+    return { document: existing, duplicateBinary: true };
+  }
   const document = await storage.put({ metadata: { ...inspected, storageKey }, body: input.bytes });
   return { document, duplicateBinary: false };
 }

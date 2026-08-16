@@ -1,3 +1,5 @@
+import documentManifest from "./data/source-documents.json" with { type: "json" };
+import { applyDocumentManifest } from "./document-manifest.ts";
 import { assertSourceRegistry, type Source } from "./source-registry.ts";
 
 export {
@@ -158,7 +160,7 @@ export function getTopicById(id: string | undefined) {
 const featuredTopicIds = ["geology", "petrophysics", "pvt", "geomodeling", "development", "modeling", "well-testing", "production"];
 export const topics = featuredTopicIds.map(getTopicById).filter((topic): topic is KnowledgeTopic => Boolean(topic));
 
-export const sources: Source[] = [
+const sourceDefinitions: Source[] = [
   {
     id: "mat-reservoir-engineering", slug: "reservoir-engineering", title: "Физика нефтяного и газового пласта",
     authors: [{ fullName: "А. М. Коновалов" }], year: 2024, type: "practical-guide", language: "ru",
@@ -216,6 +218,8 @@ export const sources: Source[] = [
     quality: { authorityTier: "supplementary" }, recordStatus: "demo",
   },
 ];
+
+export const sources = applyDocumentManifest(sourceDefinitions, documentManifest);
 
 assertSourceRegistry(sources, allTopics.map((topic) => topic.id));
 

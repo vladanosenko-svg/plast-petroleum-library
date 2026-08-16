@@ -139,7 +139,7 @@ test("custom Russian 404 is rendered", async ({ page }) => {
 
 test("pages do not overflow across required viewports and themes", async ({ page }) => {
   const widths = [320, 360, 375, 390, 412, 768, 1024, 1280, 1440];
-  const routes = ["/", "/library", "/topics", "/courses", "/about", "/library/reservoir-engineering", "/random-page-404"];
+  const routes = ["/", "/library", "/topics", "/courses", "/about", "/library/reservoir-engineering", "/library/reservoir-engineering/read", "/random-page-404"];
 
   for (const theme of ["light", "dark"]) {
     await page.addInitScript((selectedTheme) => localStorage.setItem("theme", selectedTheme), theme);
@@ -154,6 +154,17 @@ test("pages do not overflow across required viewports and themes", async ({ page
         expect(sizes.scrollWidth, `${theme} ${width}px ${route}`).toBeLessThanOrEqual(sizes.clientWidth);
       }
     }
+  }
+});
+
+test("metadata-only reader stays usable at mobile and desktop widths", async ({ page }) => {
+  for (const width of [320, 390, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/library/reservoir-engineering/read?page=invalid");
+    await expect(page.getByRole("heading", { name: "Этот источник пока недоступен для чтения в PLAST." })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Назад к источнику" })).toBeVisible();
+    const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+    expect(fits, `${width}px metadata reader`).toBe(true);
   }
 });
 

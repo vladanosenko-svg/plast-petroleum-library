@@ -55,10 +55,13 @@ export async function serveSourceDocument(request: Request, source: Source, stor
     "Cache-Control": "private, max-age=0, must-revalidate",
     "Content-Disposition": contentDisposition(document.originalFilename, document.format === "pdf"),
     "Content-Type": document.mimeType,
+    "Cross-Origin-Resource-Policy": "same-origin",
     ETag: etag,
+    "Referrer-Policy": "no-referrer",
     "X-Content-Type-Options": "nosniff",
   });
-  if (document.format === "html") headers.set("Content-Security-Policy", "sandbox");
+  headers.set("Content-Security-Policy", "frame-ancestors 'self'");
+  if (document.format === "html") headers.set("Content-Security-Policy", "sandbox; default-src 'none'; frame-ancestors 'self'");
   if (request.headers.get("If-None-Match") === etag) return new Response(null, { status: 304, headers });
 
   const range = parseRange(request.headers.get("Range"), metadata.fileSizeBytes);

@@ -96,3 +96,21 @@ test("server-renders search, topic empty state, materials and custom 404", async
   assert.equal(notFoundResponse.status, 404);
   assert.match(await notFoundResponse.text(), /Страница не найдена/i);
 });
+
+test("reader routes handle metadata-only, invalid page and missing sources safely", async () => {
+  for (const pathname of [
+    "/library/reservoir-engineering/read",
+    "/library/reservoir-engineering/read?page=wrong",
+    "/library/reservoir-engineering/read?page=-7",
+  ]) {
+    const response = await render(pathname);
+    assert.equal(response.status, 200, pathname);
+    const html = await response.text();
+    assert.match(html, /Этот источник пока недоступен для чтения в PLAST/i, pathname);
+    assert.doesNotMatch(html, /Error 1101|Worker threw exception/i, pathname);
+  }
+
+  const missing = await render("/library/source-that-does-not-exist/read");
+  assert.equal(missing.status, 404);
+  assert.match(await missing.text(), /Страница не найдена/i);
+});

@@ -2,7 +2,7 @@
 
 ## Архитектура
 
-Документ проходит цепочку `Source → SourceDocument → DocumentStorage → Cloudflare R2`. Бинарные файлы не хранятся в Git, TypeScript-данных или базе. Метаданные пока остаются в существующем Source Registry и готовы к будущему переносу в БД.
+Документ проходит цепочку `Source → SourceDocument → DocumentStorage → Cloudflare R2`. Бинарные файлы не хранятся в Git, TypeScript-данных или базе. Связь с Source хранится в валидируемом `app/data/source-documents.json` и объединяется с registry при загрузке приложения.
 
 ## Provider и binding
 
@@ -26,7 +26,7 @@ documents/originals/{sourceId}/{sha256}.{extension}
 
 ## Метаданные и целостность
 
-`SourceDocument` хранит `format`, `storageKey`, `originalFilename`, `mimeType`, `fileSizeBytes`, lowercase `checksumSha256` и `processingStatus`. `pageCount` не вычисляется. SHA-256 считается через Web Crypto. Одинаковые `sourceId + SHA-256 + extension` дают одинаковый ключ; существующий объект определяется через `HEAD` как duplicate binary. Source records автоматически не объединяются.
+`SourceDocument` хранит `format`, `storageKey`, `originalFilename`, `mimeType`, `fileSizeBytes`, lowercase `checksumSha256` и `processingStatus`. `pageCount` не вычисляется. SHA-256 считается через Web Crypto. Одинаковые `sourceId + SHA-256 + extension` дают одинаковый ключ; существующий object принимается как duplicate binary только после сверки HEAD metadata. Source records автоматически не объединяются.
 
 ## Доступ и права
 
@@ -34,11 +34,11 @@ documents/originals/{sourceId}/{sha256}.{extension}
 - `external-fulltext` не требует локального binary;
 - `local-fulltext` требует полный комплект document metadata.
 
-Прикрепление файла разрешено только после явного решения `local-fulltext`; оно не меняет `recordStatus` и не выводит права из `ragPermission`. Техническая возможность хранения не означает наличие авторского права. Автоматического скачивания по URL, реальных книг, публичного upload или публичного DELETE API нет.
+Прикрепление файла разрешено только после явного решения `local-fulltext`; оно не меняет `recordStatus` и не выводит права из `ragPermission`. Техническая возможность хранения не означает наличие авторского права. Автоматического скачивания по URL и публичной upload-формы нет. PUT/DELETE доступны только controlled CLI через internal endpoint с отдельным secret; без корректной авторизации endpoint отвечает 404.
 
 ## Выдача
 
-Worker обслуживает `GET` и `HEAD /library/{slug}/document`: сначала находит Source и проверяет `local-fulltext`, затем обращается к R2. Ответ включает безопасный `Content-Disposition`, `Content-Type`, `Content-Length`, `Cache-Control`, checksum-based `ETag`, `X-Content-Type-Options` и поддержку одиночных HTTP Range requests. PDF выдаётся inline; HTML — attachment с sandbox policy.
+Worker обслуживает `GET` и `HEAD /library/{slug}/document`: сначала находит Source и проверяет `local-fulltext`, затем обращается к R2. Ответ включает безопасный `Content-Disposition`, `Content-Type`, `Content-Length`, `Cache-Control`, checksum-based `ETag`, `X-Content-Type-Options`, CSP, same-origin resource policy и поддержку одиночных HTTP Range requests. PDF выдаётся inline; HTML — attachment с sandbox policy. R2 exceptions перехватываются на уровне request и не нарушают обычные страницы.
 
 ## Локальная проверка
 
@@ -52,4 +52,4 @@ npm run document:inspect -- path/to/file.pdf
 
 ## Следующие этапы
 
-3C.2 добавит reader. Извлечение текста, OCR, страницы, chunks, embeddings и AI/RAG в 3C.1 отсутствуют.
+Reader и controlled ingestion описаны в `docs/DOCUMENT_READER.md`. Извлечение текста, OCR, chunks, embeddings и AI/RAG отсутствуют.

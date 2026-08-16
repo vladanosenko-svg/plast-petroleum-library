@@ -83,6 +83,7 @@ function mergeCandidate(left: DiscoveryCandidate, right: DiscoveryCandidate): Di
   addConflict(conflicts, "publicationYear", left.publicationYear, right.publicationYear);
   addConflict(conflicts, "sourceType", left.sourceType, right.sourceType);
   addConflict(conflicts, "language", left.language, right.language);
+  addConflict(conflicts, "accessHint", left.accessHint, right.accessHint);
   const leftAuthors = uniqueSorted(left.authors.map((author) => normalizeAuthorName(author.fullName))).join("|") || undefined;
   const rightAuthors = uniqueSorted(right.authors.map((author) => normalizeAuthorName(author.fullName))).join("|") || undefined;
   addConflict(conflicts, "authors", leftAuthors, rightAuthors);
@@ -100,6 +101,11 @@ function mergeCandidate(left: DiscoveryCandidate, right: DiscoveryCandidate): Di
 
   const merged: DiscoveryCandidate = {
     ...left,
+    title: left.title || right.title,
+    normalizedTitle: left.normalizedTitle || right.normalizedTitle,
+    publicationYear: left.publicationYear ?? right.publicationYear,
+    sourceType: left.sourceType ?? right.sourceType,
+    language: left.language ?? right.language,
     authors: [...authors.values()],
     identifiers: {
       doi: left.identifiers.doi ?? right.identifiers.doi,
@@ -112,6 +118,8 @@ function mergeCandidate(left: DiscoveryCandidate, right: DiscoveryCandidate): Di
     urls: mergeDefinedObjects(left.urls, right.urls),
     openAccess: mergeDefinedObjects(left.openAccess, right.openAccess),
     qualitySignals: mergeDefinedObjects(left.qualitySignals, right.qualitySignals),
+    accessHint: left.accessHint ?? right.accessHint,
+    providerMetadata: mergeDefinedObjects(left.providerMetadata, right.providerMetadata),
     topicIds: uniqueSorted([...left.topicIds, ...right.topicIds]),
     provenance: mergeProvenance(left.provenance, right.provenance),
     fieldConflicts: conflicts.length > 0

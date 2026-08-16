@@ -17,7 +17,7 @@ try {
   for (const topicId of topicIds) {
     console.log(topicId);
     for (const query of plan.filter((item) => item.topicId === topicId)) {
-      console.log(`  ${query.provider.padEnd(9)} ${query.language.toUpperCase()}  "${query.query}"  limit=${query.resultLimit}`);
+      console.log(`  ${query.provider.padEnd(14)} ${query.language.toUpperCase()}  "${query.query}"  limit=${query.resultLimit}`);
     }
     console.log();
   }

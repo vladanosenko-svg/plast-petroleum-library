@@ -1,6 +1,7 @@
 import { validateDiscoveryLimits } from "./config.ts";
 import { mergeDiscoveryCandidates } from "./merge.ts";
 import { normalizeProviderRecord } from "./normalize.ts";
+import { isRussianDiscoveryProvider } from "./types.ts";
 import type {
   DiscoveryExecutionResult,
   DiscoveryLimits,
@@ -42,12 +43,14 @@ export async function runDiscovery(input: RunDiscoveryInput): Promise<DiscoveryE
       queriesSucceeded: 0,
       queriesFailed: 0,
       rawRecords: 0,
+      acceptedRecords: 0,
       errors: [],
     }]),
   );
   const normalized = [] as DiscoveryExecutionResult["candidates"];
   let nextQueryIndex = 0;
   let totalRawRecords = 0;
+  let totalAcceptedRecords = 0;
   let queriesSucceeded = 0;
   let queriesFailed = 0;
 
@@ -67,10 +70,13 @@ export async function runDiscovery(input: RunDiscoveryInput): Promise<DiscoveryE
           maxRetries: limits.maxRetries,
           retryBaseDelayMs: limits.retryBaseDelayMs,
         });
-        const remaining = Math.max(0, limits.maxTotalResultsPerRun - totalRawRecords);
+        const remaining = Math.max(0, limits.maxTotalResultsPerRun - totalAcceptedRecords);
         const acceptedRecords = result.records.slice(0, remaining);
-        totalRawRecords += acceptedRecords.length;
-        providerStatus.rawRecords += acceptedRecords.length;
+        const rawRecordsFetched = result.rawRecordsFetched ?? result.records.length;
+        totalRawRecords += rawRecordsFetched;
+        totalAcceptedRecords += acceptedRecords.length;
+        providerStatus.rawRecords += rawRecordsFetched;
+        providerStatus.acceptedRecords += acceptedRecords.length;
         providerStatus.queriesSucceeded += 1;
         queriesSucceeded += 1;
         const discoveredAt = now().toISOString();
@@ -126,6 +132,16 @@ export async function runDiscovery(input: RunDiscoveryInput): Promise<DiscoveryE
         enCandidates,
         bothQueryLanguages,
         withDoi: merged.candidates.filter((candidate) => Boolean(candidate.identifiers.doi)).length,
+        withIsbn: merged.candidates.filter((candidate) => (candidate.identifiers.isbn?.length ?? 0) > 0).length,
+        withoutStrongIdentifier: merged.candidates.filter((candidate) =>
+          !candidate.identifiers.doi
+          && (candidate.identifiers.isbn?.length ?? 0) === 0
+          && !candidate.identifiers.openAlexId
+          && !candidate.identifiers.crossrefId,
+        ).length,
+        russianProviderCandidates: merged.candidates.filter((candidate) =>
+          candidate.provenance.some((item) => isRussianDiscoveryProvider(item.provider)),
+        ).length,
         withOpenAccessMetadata: merged.candidates.filter((candidate) =>
           candidate.openAccess?.isOpenAccess !== undefined || Boolean(candidate.urls?.openAccess),
         ).length,

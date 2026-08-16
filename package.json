@@ -15,6 +15,7 @@
     "document:inspect": "node --experimental-strip-types scripts/document-inspect.mjs",
     "document:ingest": "node --experimental-strip-types scripts/document-ingest.mjs",
     "discovery:plan": "node --env-file-if-exists=.env --experimental-strip-types scripts/discovery-plan.mjs",
+    "discovery:providers": "node --experimental-strip-types scripts/discovery-providers.mjs",
     "discovery:run": "node --env-file-if-exists=.env --experimental-strip-types scripts/discovery-run.mjs",
     "discovery:report": "node --env-file-if-exists=.env --experimental-strip-types scripts/discovery-report.mjs",
     "smoke:live": "node scripts/smoke-live.mjs",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
+    "fast-xml-parser": "5.11.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },

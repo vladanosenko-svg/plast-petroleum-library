@@ -1,5 +1,27 @@
 # Статус этапов
 
+```text
+3D.1 Literature Discovery Core      DONE
+3D.2 Russian Literature Discovery   DONE
+3D.3 Specialist Discovery           NEXT
+```
+
+## 3D.2 — Russian Literature Discovery
+
+Статус: завершён 16 августа 2026 года.
+
+Выполнено:
+
+- исследованы РГБ, НЭБ, КиберЛенинка, ЭНБ Губкина, ТИУ, ТПУ и Горный университет; capability matrix фиксирует только подтверждённые интерфейсы и ограничения;
+- реализованы два публичных российских OAI-PMH provider: КиберЛенинка и профильная коллекция Института геологии и нефтегазовых технологий КФУ;
+- общий provider interface, `TopicCorpusProfile`, normalization, exact DOI/ISBN/provider-ID merge и staging 3D.1 переиспользованы без отдельного русского каталога;
+- добавлены нефтегазовый RU query context, Cyrillic/title/author normalization, conservative Russian type mapping, access hints, supplemental УДК/ББК metadata и безопасный XML parsing;
+- fuzzy merge, ranking, verification, PDF acquisition, R2 ingestion, OCR и AI не добавлялись;
+- controlled PVT/Modeling/Well Testing smoke дал 10 unique Russian-only candidates, включая книги и статью по ГДИС; public Source Registry не изменился;
+- unit/regression, build и E2E пройдены; provider reconnaissance и smoke metrics документированы.
+
+Следующий этап: **3D.3 — Specialist Discovery**.
+
 ## 3D.1 — Literature Discovery Core
 
 Статус: завершён 2026-08-16.
@@ -13,7 +35,7 @@
 - staging сохраняется атомарно, повторные runs idempotent, реальные generated candidates не коммитятся и не попадают в публичный каталог;
 - добавлены plan/run/report CLI, mocked provider fixtures, unit/regression tests и controlled PVT/Modeling network smoke.
 
-Следующий этап: **3D.2 — Russian Literature Discovery**.
+Завершённый следующий этап: **3D.2 — Russian Literature Discovery**.
 
 ## 3C.2 — Document Reader & Controlled Ingestion
 

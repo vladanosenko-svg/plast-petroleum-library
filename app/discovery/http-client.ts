@@ -1,10 +1,13 @@
-export interface JsonRequestPolicy {
+export interface HttpRequestPolicy {
   timeoutMs: number;
   maxRetries: number;
   retryBaseDelayMs: number;
+  maxResponseBytes?: number;
   fetchImpl?: typeof fetch;
   sleep?: (milliseconds: number) => Promise<void>;
 }
+
+export type JsonRequestPolicy = HttpRequestPolicy;
 
 export class DiscoveryHttpError extends Error {
   readonly status?: number;
@@ -28,7 +31,12 @@ function retryAfterMilliseconds(value: string | null, now = Date.now()) {
   return Number.isFinite(date) ? Math.max(0, date - now) : undefined;
 }
 
-export async function requestJson(url: URL, init: RequestInit, policy: JsonRequestPolicy): Promise<unknown> {
+async function requestWithParser<T>(
+  url: URL,
+  init: RequestInit,
+  policy: HttpRequestPolicy,
+  parse: (response: Response) => Promise<T>,
+): Promise<T> {
   const fetchImpl = policy.fetchImpl ?? fetch;
   const sleep = policy.sleep ?? defaultSleep;
   let lastError: unknown;
@@ -39,11 +47,11 @@ export async function requestJson(url: URL, init: RequestInit, policy: JsonReque
     try {
       const response = await fetchImpl(url, { ...init, signal: controller.signal });
       if (response.ok) {
-        const contentType = response.headers.get("content-type") ?? "";
-        if (!contentType.toLocaleLowerCase("en-US").includes("json")) {
-          throw new DiscoveryHttpError("Provider returned a non-JSON response", response.status);
+        const contentLength = Number(response.headers.get("content-length"));
+        if (policy.maxResponseBytes && Number.isFinite(contentLength) && contentLength > policy.maxResponseBytes) {
+          throw new DiscoveryHttpError("Provider response exceeds the configured size limit", 400);
         }
-        return await response.json();
+        return await parse(response);
       }
 
       const retryable = response.status === 429 || response.status >= 500;
@@ -66,4 +74,24 @@ export async function requestJson(url: URL, init: RequestInit, policy: JsonReque
 
   const message = lastError instanceof Error ? lastError.message : String(lastError ?? "unknown network error");
   throw new DiscoveryHttpError(`Provider request failed after ${policy.maxRetries} attempts: ${message}`);
+}
+
+export async function requestJson(url: URL, init: RequestInit, policy: JsonRequestPolicy): Promise<unknown> {
+  return requestWithParser(url, init, policy, async (response) => {
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.toLocaleLowerCase("en-US").includes("json")) {
+      throw new DiscoveryHttpError("Provider returned a non-JSON response", response.status);
+    }
+    return response.json();
+  });
+}
+
+export async function requestText(url: URL, init: RequestInit, policy: HttpRequestPolicy): Promise<string> {
+  return requestWithParser(url, init, policy, async (response) => {
+    const value = await response.text();
+    if (policy.maxResponseBytes && new TextEncoder().encode(value).byteLength > policy.maxResponseBytes) {
+      throw new DiscoveryHttpError("Provider response exceeds the configured size limit", 400);
+    }
+    return value;
+  });
 }

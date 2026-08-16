@@ -1,15 +1,15 @@
-# Literature Discovery Core
+# Literature Discovery Engine
 
 ## Purpose
 
-3D.1 создаёт отдельный слой библиографических кандидатов. Он не изменяет публичный Source Registry, не подтверждает качество публикации, не назначает authority tier и не скачивает документы.
+3D.1 создаёт отдельный слой библиографических кандидатов; 3D.2 добавляет российский discovery через тот же provider interface. Слой не изменяет публичный Source Registry, не подтверждает качество публикации, не назначает authority tier и не скачивает документы.
 
 ```text
 TopicCorpusProfile
       ↓
 Query Planner
       ↓
-OpenAlex / Crossref adapters
+OpenAlex / Crossref / Russian OAI adapters
       ↓
 Provider normalization
       ↓
@@ -45,7 +45,7 @@ data/discovery staging
 
 ## Query planner
 
-Planner использует только существующие `TopicCorpusProfile.ruSearchTerms` и `enSearchTerms`. По умолчанию выбираются первые две стабильные RU и EN формулировки для каждого provider: всего 8 queries на topic. Неоднозначные одиночные термины получают системный petroleum context, например `PVT petroleum reservoir`.
+Planner использует существующие `TopicCorpusProfile.ruSearchTerms`, `enSearchTerms` и aliases. International providers получают первые две RU и EN формулировки; российские providers — только первые две RU формулировки. Получается 12 queries на topic при всех четырёх providers. Неоднозначные термины получают petroleum context, например `PVT свойства пластовых флюидов`, `ГДИС нефтяных скважин`, `гидродинамическое моделирование нефтегазовых месторождений`.
 
 Основные лимиты находятся в одном config:
 
@@ -61,7 +61,7 @@ Planner использует только существующие `TopicCorpusP
 
 ## Candidate model
 
-Candidate хранит title, authors, publication year, conservative SourceType mapping, provider language, DOI/ISBN/ISSN/OpenAlex/Crossref IDs, publication metadata, безопасные landing/DOI/OA URLs, раздельные citation signals, OA metadata, topics и полную query provenance.
+Candidate хранит original display title и отдельный normalized identity title, полные ФИО с отчествами, publication year, conservative SourceType mapping, provider language, DOI/ISBN/ISSN/OpenAlex/Crossref IDs, publication metadata, безопасные landing/DOI/OA URLs, access hint, supplemental provider metadata (включая УДК/ББК при наличии), topics и полную query provenance.
 
 Год Crossref выбирается в порядке: `published-print` → `published-online` → `issued` → `created`. OpenAlex использует только `publication_year`. Язык не угадывается по title. Неизвестные provider types остаются без `sourceType`.
 
@@ -86,6 +86,7 @@ data/discovery/discovery-runs.json
 
 ```bash
 npm run discovery:plan
+npm run discovery:providers
 npm run discovery:plan -- --topic pvt
 npm run discovery:run -- --topic pvt
 npm run discovery:run -- --topics pvt,modeling
@@ -106,8 +107,43 @@ DISCOVERY_CONTACT_EMAIL=
 
 ## Reports
 
-`discovery:plan` показывает topic, provider, query language, строку и configured limit без сети. `discovery:report` читает staging и показывает provider overlap, RU/EN yield, topics, types, DOI и OA metadata. Candidate counts не увеличивают verified corpus coverage.
+`discovery:plan` показывает topic, provider, query language, строку и configured limit без сети. `discovery:providers` показывает enabled/deferred providers и protocol. `discovery:report` читает staging и показывает international/Russian counts, exact overlap, Russian-only yield, metadata language, topics, literature types, DOI, ISBN, missing cross-provider identifiers, historical/recent records и access hints. Candidate counts не увеличивают verified corpus coverage.
 
 ## Limitations and next stages
 
-Provider metadata может не иметь языка, DOI, авторов или abstract; broad queries дают noise. 3D.1 не выполняет fuzzy deduplication, ranking, verification, Russian repository discovery, crawling, PDF acquisition, R2 ingestion, OCR, chunks или AI. Следующий этап — 3D.2 Russian Discovery.
+Provider metadata может не иметь языка, DOI, ISBN, авторов или abstract. OAI-PMH не предоставляет полнотекстовый search, поэтому PLAST делает bounded harvesting профильных sets и conservative local relevance gate. Discovery не выполняет fuzzy deduplication, ranking, verification, crawling, PDF acquisition, R2 ingestion, OCR, chunks или AI. Следующий этап — 3D.3 Specialist Discovery.
+
+## Russian Discovery (3D.2)
+
+Capability matrix и проверка обязательных ресурсов описаны в [RUSSIAN_DISCOVERY_PROVIDERS.md](./RUSSIAN_DISCOVERY_PROVIDERS.md).
+
+```text
+TopicCorpusProfile
+      ↓
+RU query planner
+      ↓
+CyberLeninka OAI / KFU DSpace OAI
+      ↓
+bounded metadata pages + local relevance gate
+      ↓
+shared normalization and exact merge
+      ↓
+the same data/discovery staging
+```
+
+Generic `OaiPmhDiscoveryProvider` конфигурируется typed records. Он поддерживает `Identify`, `ListMetadataFormats`, `ListRecords`, `resumptionToken`, Dublin Core, provider-specific page/raw limits, pause, retries и response size limit. В обычных tests используется только XML fixtures; network calls не выполняются.
+
+Russian type mapping conservative:
+
+- `учебник` → `textbook`;
+- `учебное/учебно-методическое пособие` → `study-guide`;
+- `монография` → `monograph`;
+- `статья` → `journal-article`;
+- `диссертация` → `dissertation`;
+- `автореферат` → `thesis-abstract`;
+- `методические указания/материалы` → `methodical-material`;
+- `материалы конференции` → `conference-paper`;
+- `технический отчёт` → `technical-report`;
+- `ГОСТ/стандарт` → `standard`.
+
+Неясный provider type остаётся пустым. DOI и ISBN валидируются существующими normalization rules. Отсутствие DOI/ISBN не удаляет запись: provider record ID остаётся точной identity только внутри provider. Похожие кириллические titles без общего strong identifier не объединяются.

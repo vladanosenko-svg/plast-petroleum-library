@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <responseDate>2026-08-16T08:00:00Z</responseDate>
+  <request verb="ListRecords" metadataPrefix="oai_dc" set="journal_9416">https://cyberleninka.ru/oai</request>
+  <ListRecords>
+    <record>
+      <header>
+        <identifier>https://cyberleninka.ru/article/n/pvt-svoystva-plastovyh-neftey</identifier>
+        <datestamp>2026-08-15T12:00:00Z</datestamp>
+        <setSpec>journal_9416</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc>
+          <dc:title>PVT-свойства пластовых нефтей — обзор</dc:title>
+          <dc:creator>Иванов, И. И.</dc:creator>
+          <dc:creator>Шабаров Анатолий Борисович</dc:creator>
+          <dc:subject>УДК 622.276.031</dc:subject>
+          <dc:description>Исследование пластовых флюидов и фазового поведения&#160;нефти &amp; газа.</dc:description>
+          <dc:publisher>Известия высших учебных заведений. Нефть и газ</dc:publisher>
+          <dc:date>2021</dc:date>
+          <dc:type>Научная статья</dc:type>
+          <dc:identifier>doi:10.1234/PVT.001</dc:identifier>
+          <dc:identifier>https://cyberleninka.ru/article/n/pvt-svoystva-plastovyh-neftey</dc:identifier>
+          <dc:identifier>https://cyberleninka.ru/article/n/pvt-svoystva-plastovyh-neftey.pdf</dc:identifier>
+          <dc:source>Известия вузов. Нефть и газ. ISSN 0445-0108</dc:source>
+          <dc:language>rus</dc:language>
+          <dc:rights>CC BY 4.0</dc:rights>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>https://cyberleninka.ru/article/n/modelirovanie-odezhdy</identifier>
+        <datestamp>2026-08-15T12:01:00Z</datestamp>
+        <setSpec>journal_9416</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc>
+          <dc:title>Моделирование одежды в образовательном процессе</dc:title>
+          <dc:creator>Петрова А. А.</dc:creator>
+          <dc:description>&lt;script&gt;alert(1)&lt;/script&gt; Педагогическое моделирование одежды.</dc:description>
+          <dc:date>2020</dc:date>
+          <dc:type>Статья</dc:type>
+          <dc:identifier>https://cyberleninka.ru/article/n/modelirovanie-odezhdy</dc:identifier>
+          <dc:language>ru</dc:language>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>https://cyberleninka.ru/article/n/gidrodinamicheskie-issledovaniya-skvazhin</identifier>
+        <datestamp>2026-08-15T12:02:00Z</datestamp>
+        <setSpec>journal_9416</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc>
+          <dc:title>Гидродинамические исследования скважин методом восстановления давления</dc:title>
+          <dc:creator>Сергеев Виктор Леонидович</dc:creator>
+          <dc:subject>КВД; ГДИС; нефтяной пласт</dc:subject>
+          <dc:date>1998</dc:date>
+          <dc:type>Статья</dc:type>
+          <dc:identifier>https://cyberleninka.ru/article/n/gidrodinamicheskie-issledovaniya-skvazhin</dc:identifier>
+          <dc:language>ru</dc:language>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <resumptionToken completeListSize="30" cursor="0">cyber-token-2</resumptionToken>
+  </ListRecords>
+</OAI-PMH>

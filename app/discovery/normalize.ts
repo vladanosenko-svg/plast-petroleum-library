@@ -1,5 +1,6 @@
 import {
   isValidIsbn,
+  isValidDoi,
   normalizeAuthorName,
   normalizeDoi,
   normalizeIsbn,
@@ -16,6 +17,7 @@ import type {
   DiscoveryProvider,
   DiscoveryQuery,
 } from "./types.ts";
+import type { OaiPmhRecord } from "./providers/oai-pmh.ts";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -100,6 +102,7 @@ function createProvenance(
   providerRecordId: string,
   query: DiscoveryQuery,
   discoveredAt: string,
+  landingPage?: string,
 ): DiscoveryProvenance {
   return {
     provider,
@@ -108,6 +111,7 @@ function createProvenance(
     topicId: query.topicId,
     queryLanguage: query.language,
     discoveredAt,
+    landingPage,
   };
 }
 
@@ -173,6 +177,7 @@ export function normalizeOpenAlexRecord(
 
   return createCandidate({
     title,
+    normalizedTitle: normalizeTitle(title),
     authors,
     publicationYear: publicationYear(raw.publication_year),
     sourceType,
@@ -198,7 +203,7 @@ export function normalizeOpenAlexRecord(
       isRetracted: typeof raw.is_retracted === "boolean" ? raw.is_retracted : undefined,
     }),
     topicIds: [query.topicId],
-    provenance: [createProvenance("openalex", id, query, discoveredAt)],
+    provenance: [createProvenance("openalex", id, query, discoveredAt, landingPage)],
     recordStatus: "candidate",
   });
 }
@@ -250,6 +255,7 @@ export function normalizeCrossrefRecord(
 
   return createCandidate({
     title,
+    normalizedTitle: normalizeTitle(title),
     authors,
     publicationYear: crossrefYear(raw),
     sourceType: type ? crossrefTypeMap[type] : undefined,
@@ -270,7 +276,148 @@ export function normalizeCrossrefRecord(
       crossrefReferencedByCount: nonNegativeInteger(raw["is-referenced-by-count"]),
     }),
     topicIds: [query.topicId],
-    provenance: [createProvenance("crossref", providerRecordId, query, discoveredAt)],
+    provenance: [createProvenance("crossref", providerRecordId, query, discoveredAt, normalizeUrl(text(raw.URL)))],
+    recordStatus: "candidate",
+  });
+}
+
+const russianTypeRules: Array<{ pattern: RegExp; type: SourceType }> = [
+  { pattern: /автореферат/iu, type: "thesis-abstract" },
+  { pattern: /диссертац/iu, type: "dissertation" },
+  { pattern: /учебно[-\s]?методическ(?:ое|ие)\s+(?:пособие|материал)/iu, type: "study-guide" },
+  { pattern: /учебн(?:ое|ые)\s+пособие/iu, type: "study-guide" },
+  { pattern: /учебник/iu, type: "textbook" },
+  { pattern: /монограф/iu, type: "monograph" },
+  { pattern: /(?:научн(?:ая|ые)\s+)?стать/iu, type: "journal-article" },
+  { pattern: /article/iu, type: "journal-article" },
+  { pattern: /материал(?:ы|ов)\s+конференц/iu, type: "conference-paper" },
+  { pattern: /методическ(?:ие|ий|ая)\s+(?:указания|материалы|рекомендации)/iu, type: "methodical-material" },
+  { pattern: /(?:техническ(?:ий|ого)\s+)?отч[её]т/iu, type: "technical-report" },
+  { pattern: /(?:гост|стандарт)/iu, type: "standard" },
+  { pattern: /справочник/iu, type: "book" },
+  { pattern: /(?:book|книга|сборник)/iu, type: "book" },
+  { pattern: /thesis/iu, type: "dissertation" },
+];
+
+export function normalizeRussianSourceType(values: readonly string[]) {
+  const combined = values.join(" ").normalize("NFKC");
+  return russianTypeRules.find((rule) => rule.pattern.test(combined))?.type;
+}
+
+function extractDoi(values: readonly string[]) {
+  for (const value of values) {
+    for (const match of value.matchAll(/10\.\d{4,9}\/[\p{L}\p{N}._;()/:+-]+/giu)) {
+      const doi = normalizeDoi(match[0].replace(/[.,;:)\]]+$/u, ""));
+      if (isValidDoi(doi)) return doi;
+    }
+  }
+  return undefined;
+}
+
+function extractIsbn(values: readonly string[]) {
+  const results: string[] = [];
+  for (const value of values) {
+    const candidates = /isbn/iu.test(value)
+      ? value.split(/[;,]/u)
+      : value.match(/97[89][\d\s-]{10,20}[\dXx]/gu) ?? [];
+    for (const candidate of candidates) {
+      const isbn = normalizeIsbn(candidate);
+      if (isbn && isValidIsbn(isbn)) results.push(isbn);
+    }
+  }
+  return [...new Set(results)].sort();
+}
+
+function extractIssn(values: readonly string[]) {
+  const results = values.flatMap((value) =>
+    [...value.matchAll(/(?:ISSN\s*:?[\s-]*)?(\d{4}[\s-]?\d{3}[\dX])/giu)].map((match) =>
+      match[1].replace(/[^0-9X]/giu, "").toUpperCase(),
+    ),
+  ).filter((value) => /^\d{7}[\dX]$/u.test(value));
+  return [...new Set(results)].sort();
+}
+
+function firstSafeUrl(values: readonly string[], predicate: (url: URL) => boolean = () => true) {
+  for (const value of values) {
+    const normalized = normalizeUrl(value);
+    if (!normalized) continue;
+    const url = new URL(normalized);
+    if (predicate(url)) return normalized;
+  }
+  return undefined;
+}
+
+function extractClassification(values: readonly string[], label: "УДК" | "ББК") {
+  const expression = label === "УДК"
+    ? /(?:УДК|UDC)\s*:?[\s-]*([0-9][0-9A-Za-zА-Яа-яЁё()./:+-]*)/giu
+    : /ББК\s*:?[\s-]*([0-9A-Za-zА-Яа-яЁё()./:+-]+)/giu;
+  return [...new Set(values.flatMap((value) => [...value.matchAll(expression)].map((match) => match[1])))];
+}
+
+export function normalizeOaiPmhRecord(
+  raw: OaiPmhRecord,
+  query: DiscoveryQuery,
+  discoveredAt: string,
+): DiscoveryCandidate | undefined {
+  const title = raw.titles[0];
+  if (!title || !raw.providerRecordId) return undefined;
+  const doi = extractDoi([...raw.identifiers, ...raw.relations]);
+  const isbn = extractIsbn([...raw.identifiers, ...raw.sources]);
+  const issn = extractIssn([...raw.identifiers, ...raw.sources]);
+  const allUrls = [...raw.identifiers, ...raw.relations];
+  const landingPage = firstSafeUrl(allUrls, (url) => !/\.pdf$/iu.test(url.pathname))
+    ?? normalizeUrl(raw.providerRecordId);
+  const fulltextUrl = firstSafeUrl(allUrls, (url) => /\.pdf$/iu.test(url.pathname));
+  const year = raw.dates.flatMap((value) => value.match(/(?:18|19|20)\d{2}/u) ?? [])
+    .map(Number)
+    .find((value) => publicationYear(value));
+  const language = raw.languages.map(normalizeLanguage).find(Boolean)
+    ?? (/\p{Script=Cyrillic}/u.test(title) ? "ru" : undefined);
+  const classificationValues = [...raw.subjects, ...raw.descriptions];
+  const udc = extractClassification(classificationValues, "УДК");
+  const bbk = extractClassification(classificationValues, "ББК");
+  const providerMetadata: Record<string, string | string[]> = {
+    institution: raw.institution,
+  };
+  if (raw.datestamp) providerMetadata.recordDatestamp = raw.datestamp;
+  if (raw.setSpecs.length > 0) providerMetadata.setSpecs = raw.setSpecs;
+  if (raw.subjects.length > 0) providerMetadata.subjects = raw.subjects;
+  if (raw.descriptions.length > 0) providerMetadata.descriptions = raw.descriptions;
+  if (raw.types.length > 0) providerMetadata.originalTypes = raw.types;
+  if (raw.rights.length > 0) providerMetadata.rights = raw.rights;
+  if (raw.contributors.length > 0) providerMetadata.contributors = raw.contributors;
+  if (udc.length > 0) providerMetadata.udc = udc;
+  if (bbk.length > 0) providerMetadata.bbk = bbk;
+
+  return createCandidate({
+    title,
+    normalizedTitle: normalizeTitle(title),
+    authors: raw.creators.flatMap((value) => {
+      const author = authorFromDisplayName(value);
+      return author ? [author] : [];
+    }),
+    publicationYear: year,
+    sourceType: normalizeRussianSourceType(raw.types)
+      ?? (query.provider === "cyberleninka" ? "journal-article" : undefined),
+    language,
+    identifiers: { doi, isbn, issn },
+    publication: compactObject({
+      publisher: raw.publishers[0],
+      journal: raw.sources[0],
+      institution: raw.institution,
+    }),
+    urls: compactObject({
+      landingPage,
+      doi: doi ? `https://doi.org/${doi}` : undefined,
+      openAccess: fulltextUrl,
+    }),
+    openAccess: raw.accessHint === "external-fulltext"
+      ? compactObject({ isOpenAccess: true, status: "external-fulltext", license: raw.rights[0] })
+      : compactObject({ license: raw.rights[0] }),
+    accessHint: raw.accessHint,
+    providerMetadata,
+    topicIds: [query.topicId],
+    provenance: [createProvenance(query.provider, raw.providerRecordId, query, discoveredAt, landingPage)],
     recordStatus: "candidate",
   });
 }
@@ -281,7 +428,7 @@ export function normalizeProviderRecord(
   query: DiscoveryQuery,
   discoveredAt: string,
 ) {
-  return provider === "openalex"
-    ? normalizeOpenAlexRecord(raw, query, discoveredAt)
-    : normalizeCrossrefRecord(raw, query, discoveredAt);
+  if (provider === "openalex") return normalizeOpenAlexRecord(raw, query, discoveredAt);
+  if (provider === "crossref") return normalizeCrossrefRecord(raw, query, discoveredAt);
+  return isRecord(raw) ? normalizeOaiPmhRecord(raw as unknown as OaiPmhRecord, query, discoveredAt) : undefined;
 }

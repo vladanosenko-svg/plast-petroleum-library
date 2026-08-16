@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <responseDate>2026-08-16T08:00:00Z</responseDate>
+  <request verb="ListRecords" metadataPrefix="oai_dc" set="com_net_6046">https://dspace.kpfu.ru/oai/request</request>
+  <ListRecords>
+    <record>
+      <header>
+        <identifier>oai:dspace.kpfu.ru:net/1001</identifier>
+        <datestamp>2026-08-15T13:00:00Z</datestamp>
+        <setSpec>com_net_6046</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc>
+          <dc:title>Гидравлика и нефтегазовая гидродинамика: учебно-методическое пособие</dc:title>
+          <dc:creator>Сафин Ринат Маратович</dc:creator>
+          <dc:subject>УДК 532.5</dc:subject>
+          <dc:description>Теория фильтрации и подземная гидравлика нефтяного пласта.</dc:description>
+          <dc:publisher>Казанский федеральный университет</dc:publisher>
+          <dc:date>2019</dc:date>
+          <dc:type>Учебно-методическое пособие</dc:type>
+          <dc:identifier>ISBN 978-5-00019-945-9</dc:identifier>
+          <dc:identifier>https://dspace.kpfu.ru/xmlui/handle/net/1001</dc:identifier>
+          <dc:identifier>javascript:alert(1)</dc:identifier>
+          <dc:language>rus</dc:language>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:dspace.kpfu.ru:net/1002</identifier>
+        <datestamp>2026-08-15T13:01:00Z</datestamp>
+        <setSpec>com_net_6046</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc>
+          <dc:title>Адаптация гидродинамической модели нефтяного месторождения</dc:title>
+          <dc:creator>Каримов Ильдар Рашитович</dc:creator>
+          <dc:contributor>Научный руководитель: Ахметов А. Б.</dc:contributor>
+          <dc:date>2022</dc:date>
+          <dc:type>Диссертация</dc:type>
+          <dc:identifier>https://dspace.kpfu.ru/xmlui/handle/net/1002</dc:identifier>
+          <dc:language>ru</dc:language>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:dspace.kpfu.ru:net/1003</identifier>
+        <datestamp>2026-08-15T13:02:00Z</datestamp>
+        <setSpec>com_net_6046</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc>
+          <dc:title>Исследование свойств пластовых флюидов</dc:title>
+          <dc:creator>Галиев М. Р.</dc:creator>
+          <dc:date>2018</dc:date>
+          <dc:type>Автореферат диссертации</dc:type>
+          <dc:identifier>https://dspace.kpfu.ru/xmlui/handle/net/1003</dc:identifier>
+          <dc:language>ru</dc:language>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:dspace.kpfu.ru:net/1004</identifier>
+        <datestamp>2026-08-15T13:03:00Z</datestamp>
+        <setSpec>com_net_6046</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc>
+          <dc:title>Физика нефтяного пласта</dc:title>
+          <dc:creator>Фёдоров И. И.</dc:creator>
+          <dc:date>1987</dc:date>
+          <dc:type>Учебник</dc:type>
+          <dc:identifier>https://dspace.kpfu.ru/xmlui/handle/net/1004</dc:identifier>
+          <dc:language>ru</dc:language>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:dspace.kpfu.ru:net/1005</identifier>
+        <datestamp>2026-08-15T13:04:00Z</datestamp>
+        <setSpec>com_net_6046</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc>
+          <dc:title>Лабораторные исследования PVT-свойств пластовой нефти</dc:title>
+          <dc:creator>Нуриев Р. Н.</dc:creator>
+          <dc:date>2024</dc:date>
+          <dc:type>Методические указания</dc:type>
+          <dc:identifier>https://dspace.kpfu.ru/xmlui/handle/net/1005</dc:identifier>
+          <dc:language>ru</dc:language>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+  </ListRecords>
+</OAI-PMH>

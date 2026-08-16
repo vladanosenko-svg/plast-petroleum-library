@@ -5,9 +5,21 @@ import type {
   SourceType,
 } from "../source-registry.ts";
 
-export const discoveryProviders = ["openalex", "crossref"] as const;
+export const internationalDiscoveryProviders = ["openalex", "crossref"] as const;
+export const russianDiscoveryProviders = ["cyberleninka", "kpfu"] as const;
+export const discoveryProviders = [
+  ...internationalDiscoveryProviders,
+  ...russianDiscoveryProviders,
+] as const;
 export type DiscoveryProvider = (typeof discoveryProviders)[number];
 export type DiscoveryQueryLanguage = "ru" | "en";
+export type DiscoveryAccessHint = "metadata-only" | "external-fulltext" | "unknown";
+
+export function isRussianDiscoveryProvider(
+  provider: DiscoveryProvider,
+): provider is (typeof russianDiscoveryProviders)[number] {
+  return (russianDiscoveryProviders as readonly DiscoveryProvider[]).includes(provider);
+}
 
 export interface DiscoveryLimits {
   maxQueriesPerTopicPerLanguage: number;
@@ -44,6 +56,7 @@ export interface ProviderSearchResult {
   queryId: string;
   records: unknown[];
   pagesFetched: number;
+  rawRecordsFetched?: number;
 }
 
 export interface LiteratureDiscoveryProvider {
@@ -58,6 +71,7 @@ export interface DiscoveryProvenance {
   topicId: string;
   queryLanguage: DiscoveryQueryLanguage;
   discoveredAt: string;
+  landingPage?: string;
 }
 
 export interface DiscoveryIdentifiers {
@@ -94,6 +108,7 @@ export interface DiscoveryFieldConflict {
 export interface DiscoveryCandidate {
   id: string;
   title: string;
+  normalizedTitle: string;
   authors: SourceAuthor[];
   publicationYear?: number;
   sourceType?: SourceType;
@@ -103,6 +118,8 @@ export interface DiscoveryCandidate {
   urls?: DiscoveryUrls;
   openAccess?: DiscoveryOpenAccess;
   qualitySignals?: DiscoveryQualitySignals;
+  accessHint?: DiscoveryAccessHint;
+  providerMetadata?: Record<string, string | string[]>;
   topicIds: string[];
   provenance: DiscoveryProvenance[];
   fieldConflicts?: DiscoveryFieldConflict[];
@@ -115,6 +132,7 @@ export interface DiscoveryProviderRunStatus {
   queriesSucceeded: number;
   queriesFailed: number;
   rawRecords: number;
+  acceptedRecords: number;
   errors: string[];
 }
 
@@ -125,6 +143,9 @@ export interface DiscoveryRunSummary {
   enCandidates: number;
   bothQueryLanguages: number;
   withDoi: number;
+  withIsbn: number;
+  withoutStrongIdentifier: number;
+  russianProviderCandidates: number;
   withOpenAccessMetadata: number;
   fieldConflicts: number;
   examples: string[];

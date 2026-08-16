@@ -2,6 +2,8 @@ import { ANONYMOUS_OPENALEX_DEMO_LIMITS, validateDiscoveryLimits } from "../app/
 import { mergeDiscoveryStaging } from "../app/discovery/merge.ts";
 import { CrossrefDiscoveryProvider } from "../app/discovery/providers/crossref.ts";
 import { OpenAlexDiscoveryProvider } from "../app/discovery/providers/openalex.ts";
+import { OaiPmhDiscoveryProvider } from "../app/discovery/providers/oai-pmh.ts";
+import { russianOaiProviderConfigs } from "../app/discovery/provider-capabilities.ts";
 import { buildDiscoveryPlan } from "../app/discovery/query-planner.ts";
 import { runDiscovery } from "../app/discovery/runner.ts";
 import {
@@ -41,6 +43,10 @@ try {
   const providerAdapters = new Map([
     ["openalex", new OpenAlexDiscoveryProvider({ apiKey: process.env.OPENALEX_API_KEY })],
     ["crossref", new CrossrefDiscoveryProvider({ contactEmail: process.env.DISCOVERY_CONTACT_EMAIL })],
+    ...russianOaiProviderConfigs.map((config) => [
+      config.id,
+      new OaiPmhDiscoveryProvider(config, { contactEmail: process.env.DISCOVERY_CONTACT_EMAIL }),
+    ]),
   ]);
   const result = await runDiscovery({ queries, providers: providerAdapters, limits });
   const existingCandidates = await readJsonArray(candidatesPath);
@@ -60,6 +66,7 @@ try {
     console.log(`\n${status.provider}`);
     console.log(`  queries: ${status.queriesSucceeded}/${status.queriesAttempted} succeeded`);
     console.log(`  raw records: ${status.rawRecords}`);
+    console.log(`  accepted records: ${status.acceptedRecords}`);
     for (const error of status.errors) console.log(`  error: ${error}`);
   }
   console.log(`\nTotal raw: ${result.run.rawRecords}`);
@@ -68,6 +75,9 @@ try {
   console.log(`RU query candidates: ${result.run.summary.ruCandidates}`);
   console.log(`EN query candidates: ${result.run.summary.enCandidates}`);
   console.log(`With DOI: ${result.run.summary.withDoi}`);
+  console.log(`With ISBN: ${result.run.summary.withIsbn}`);
+  console.log(`Without cross-provider identifier: ${result.run.summary.withoutStrongIdentifier}`);
+  console.log(`Russian-provider candidates: ${result.run.summary.russianProviderCandidates}`);
   console.log(`With OA metadata: ${result.run.summary.withOpenAccessMetadata}`);
   console.log(`Current staged candidates: ${stagedCandidates.length}`);
   if (result.run.summary.examples.length > 0) {
